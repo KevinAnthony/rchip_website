@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<link type="text/css" rel="stylesheet"  href="{% get_static_prefix %}css/style.css"></link>
+<head>
+<title>{% block title %}My amazing site{% endblock %}</title>
+{% block scripts %} {% endblock %}
+</head>
+<body>
+<div id="wrap">
+  <div id="nav">
+        <ul>
+		<li> <a class="pbutton" href="/main/">Main Page</a></li>
+                <li> <a class="pbutton" href="/hack/">Fallout Hacker</a></li>
+                <li> <a class="pbutton" href="/weight/">Weight Monitor</a></li>
+		<li> <a class="pbutton" href="/weight/">Mileage</a></li>
+                {% if user.is_authenticated %}
+			<li><a class="pbutton" href="/accounts/logout/"> Logout:{{ user.username }}</a></li>
+                     {% else %}
+                        <li><a class="pbutton" href="/accounts/login/">Login</a></li>
+                     {% endif %}
+                
+        </ul>
+  </div>
+  {% block content %}{% endblock %}
+  <div id="footer"></div>
+</div>
+</body>
+</html>

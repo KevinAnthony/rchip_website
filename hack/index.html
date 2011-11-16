@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Fallout Hacker{% endblock %}
+
+{% block content %}
+<div id="stylized" class="myform">
+	<form id="form" name="form" method="post" action="/hack/">
+
+		{% csrf_token %}
+	
+		{{ form.non_field_errors }}
+		<h1>FALLOUT Computer Hack Helper</h1>
+		{% if word1error %}
+                <h3>{{ word1error }}</h3>
+                {% endif %}
+		{% if word2error %}
+                <h3>{{ word2error }}</h3>
+                {% endif %}
+		{% if word3error %}
+                <h3>{{ word3error }}</h3>
+	        {% endif %}
+		{% if word4error %}
+                <h3>{{ word4error }}</h3>
+                {% endif %}
+		{% if correntWordCorrect %}
+                <h2>{{ correntWordCorrect }}</h2>
+                {% endif %}
+		<p>Here we go</p>
+			<label>First Word
+			</label>
+			{{ form.word1 }}
+			<label>Amount Correct
+			</label>
+			{{ form.val1 }}
+			<br />
+			<label>Second Word
+                        </label>
+                        {{ form.word2 }}
+                        <label>Amount Correct
+                        </label>
+                        {{ form.val2 }}
+                        <br />
+			<label>Third Word
+                        </label>
+                        {{ form.word3 }}
+                        <label>Amount Correct
+                        </label>
+                        {{ form.val3 }}
+                        <br />
+			<label>Forth Word
+                        </label>
+                        {{ form.word4 }}
+                        <label>Amount Correct
+                        </label>
+                        {{ form.val4 }}
+                        <br />
+			<label>Current Word</label>
+			{{ form.CurrentWord }}
+			<button type="submit">Test Word</button>
+			<button type="reset">Clear Form</button>
+			<div class="spacer"></div>
+		</form>
+	</div>
+{% endblock %}

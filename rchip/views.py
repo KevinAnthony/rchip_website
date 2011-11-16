@@ -1,0 +1,108 @@
+from response import JSONResponse
+from rchip.models import command_queue,daemon_register,message_register,music_info,remote_devices
+from main.models import eps_data,tv_shows
+from django.contrib.auth import logout
+from django.contrib.auth.forms import UserCreationForm
+from django.views.decorators.csrf import csrf_exempt
+import os
+
+#TODO change all if something = None to try, except
+#TODO write offload functions
+
+@csrf_exempt
+def json_get_daemons(request):
+        daemons = daemon_register.objects.all()
+        return JSONResponse(daemons.values('hostname'))
+
+@csrf_exempt
+def json_get_video_path(request):
+	host = request.GET['host']
+	if host!=None:
+		print host
+		path = daemon_register.objects.all().filter(hostname=host)
+	else:
+		path = daemon_register.objects.all()
+        return JSONResponse(path.values('path_to_root'))
+
+@csrf_exempt
+def json_send_command(request):
+	response = {}
+	command_in = request.GET['command']
+	command_text_in = request.GET['command_text']
+	source_hostname_in = request.GET['source_hostname']
+	destination_hostname_in = request.GET['destination_hostname']
+	if (command_in != None):
+		if (command_text_in != None):
+			command_text_in = command_text_in.replace("'","\'")
+			command_text_in = command_text_in.replace('\\',"\\\\")
+			command_text_in = command_text_in.replace('\'',"\\\'")
+			command_text_in = command_text_in.replace(';',"\\;")
+		com_que = command_queue(command=command_in,command_text=command_text_in,source_hostname=source_hostname_in,destination_hostname=destination_hostname_in)
+		com_que.save()
+		response['success']=True
+	else:
+		response['success']=False	
+        return JSONResponse(response)
+
+@csrf_exempt
+def json_register_remote_device(request):
+	response = {}
+        device_name_in = request.GET['device_name']
+        state_in = request.GET['state'] in ['true','TRUE','True','T','t','1']
+	if (device_name_in!=None):
+		try:
+			rem_dev = remote_devices.objects.get(devices_name=device_name_in)
+			rem_dev.active = state_in
+		except:
+			rem_dev = remote_devices(devices_name=device_name_in,active=state_in)
+		rem_dev.save()
+		response['success']=True
+        else:
+                response['success']=False
+        return JSONResponse(response)
+
+@csrf_exempt
+def json_get_song_info(request):
+        host = request.GET['host']
+	if host!=None:
+		mus = music_info.objects.all().filter(destination_hostname=host)
+        	return JSONResponse(mus.values('artist','album','song','elapsed_time','total_time','is_playing'))
+	return JSONResponse(None)
+
+@csrf_exempt
+def json_get_command(request):
+        host = request.GET['host']
+	if host!=None:
+                command = command_queue.objects.all().filter(destination_hostname=host)
+		retval = JSONResponse(command.values('command','command_text'))
+		command.delete()
+		return retval
+        return JSONResponse(None)
+
+@csrf_exempt
+def json_show_exists(request):
+	show = request.GET['show_name']
+	#check database if show exists, return true/false
+	return JSONResponse(None)		
+
+@csrf_exempt
+def json_episode_name(request):
+        show = request.GET['show_name']
+	eps_name = request.GET['episode_number']
+	return JSONResponse(None)
+
+@csrf_exempt
+def json_show_downloaded(request):
+	file_path = request.GET['file_path']
+	file_name = os.path.basename(file_path)
+	showName = file_name.split('.')[0].replace('_',' ')
+	epsNumber = file_name.split('.')[1]
+	e = eps_data.objects.get(show=tv_shows.objects.get(name=showName),eps_number=epsNumber)
+	e.downloaded = True
+	e.uri = file_path
+	e.save()
+	return JSONResponse(None)
+	
+	
+#write json_show_checked
+#write json_show_updated
