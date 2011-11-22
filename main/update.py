@@ -19,7 +19,6 @@ class updateEpsList():
 			url = "%s/%s/all/en.zip" % (self.baseurl,seriesID)
 			xmldom = self.processFile(url)
 			if xmldom == None:
-				print "Can't downlaod show for %s" %(showName)
 				continue
 			for e in xmldom.getElementsByTagName("Episode"):
 				try:
@@ -55,7 +54,6 @@ class updateEpsList():
                 for show in shows:
                         eps = eps_data.objects.filter(show=show,air_date__gte=datetime.now()-timedelta(30))
                         if len(eps) <> 0:
-                                print show.name
                                 show.active=1
 				show.last_update=datetime.now()
                                 show.save()
