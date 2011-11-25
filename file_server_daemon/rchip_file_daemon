@@ -1,0 +1,415 @@
+#!/usr/bin/env python
+
+import SOAPpy,feedparser
+import MySQLdb, imdb
+import logging
+import logging.handlers
+import threading,socket
+import os ,re, sys,time
+import shutil,urllib
+import time,datetime,string
+import urllib2
+import urllib
+	
+class msFileMover(threading.Thread):
+        def __init__(self):
+                threading.Thread.__init__(self)
+                self._stopevent = threading.Event()
+                self._sleepPeriod = 10.0
+		self._download_path = "/mnt/raid/Torrents"
+                self._base_path_l = "/mnt/raid/English/Live_Action"
+                self._base_path_a = "/mnt/raid/English/Animated"
+                self._base_path_Anime = "/mnt/raid/Foreign/Animeted"
+
+	
+	def updatedb(self,name,path):
+		url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s" % (urllib.quote(name))
+		logging.info(url)
+		urllib2.urlopen(url)
+	        tickerMessage = "%s Done|%s|%s" %(name,name,path)
+	        query = "select devices_name from rchip_remote_devices where active = 1"
+		self.cursor.execute(query)
+		resultSets = self.cursor.fetchall()
+		messageRecips = []
+	        for result in resultSets:
+			if not result[0] in messageRecips:
+	        		messageRecips.append(result[0])
+		for recpit in messageRecips:
+			url = "http://www.nosideholdings.com/json/sendcommand/?command=TMSG&command_text=%s&source_hostname=Tomoya&destination_hostname=%s" %(urllib.quote(tickerMessage),urllib.quote(recpit))
+			logging.info("Opening URL: %s" % (url))
+			urllib.urlopen(url)
+
+	def exceptions(self,inname):
+		if inname == "Castle_2009":
+			outname = "Castle"
+		elif inname == "Hawaii_Five-0_2010":
+			outname = "Hawaii_Five-0"
+		elif inname == "Human_Target_2010" :
+			outname = "Human_Target"
+		elif inname == "The_Cape_2011" :
+			outname = "The_Cape"
+		else:
+			outname=inname
+		return outname
+
+	def anime(self,inname):
+		if len(re.split("One_Piece",inname)) > 1:
+			return True
+		if len(re.split("Fairy_Tail",inname)) > 1:
+	                return True
+		if len(re.split("Gintama",inname)) > 1:
+                        return True
+		if len(re.split("C_The_Money_of_Soul_and_Possibility_Control",inname)) > 1:
+			return True
+		return False
+
+	def anime_exceptions(self,inname,fname):
+		filepath=fname
+		quality = None
+	        result = re.split("\[|\]",fname)
+		try:
+			if len(re.split("One_Piece",inname)) > 1:
+				groupname = result[1]
+		                if groupname == "yibis":
+		                	checkSum = result[5]
+		                        quality = result[4]
+		                else:
+		                        checkSum = result[3]
+		                eps_information = result[2][1:-1]
+				folder = "One_Piece"
+			if len(re.split("Fairy_Tail",inname)) > 1:
+				groupname = result[1]
+	                        if groupname == "Ryugan":
+	                                checkSum = result[5]
+	                                quality = result[3]
+	                        else:
+	                                checkSum = result[3]
+	                        eps_information = result[2][1:-1]
+	                        folder = "Fairy_Tail"
+			if len(re.split("Gintama",inname)) > 1:
+                                groupname = result[1]
+                                if groupname == "Rumbel":
+                                        checkSum = result[5]
+                                else:
+                                        checkSum = result[5]
+                                eps_information = result[2][1:]
+                                folder = "Gintama"
+			if len(re.split("C_The_Money_of_Soul_and_Possibility_Control",inname)) > 1:
+                                groupname = result[1]
+                                logging.info(result)
+				if groupname == "gg":
+                                        checkSum = result[3]
+                                else:  
+                                        checkSum = result[3]
+                                eps_information = result[2][1:-1]
+                                folder = "C_The_Money_of_Soul_and_possibility_Control"
+			ext=fname[-3:]	
+	        except:
+			e = sys.exc_info()[1]
+                        logging.error("%s" % (e))	
+			return (inname,fname)
+		if quality <> None:
+	        	newFileName = "%s_[%s]_[%s]%s.%s"% (eps_information,groupname,checkSum,quality,ext)
+	        else:
+	                newFileName = "%s_[%s]_[%s].%s"% (eps_information,groupname,checkSum,ext)
+	        nFilePath = os.path.join(self._base_path_Anime,folder,newFileName.replace("_-_",'_'))
+		destPath = os.path.join(self._base_path_Anime,folder)
+		return (nFilePath,destPath)
+	
+	def move(self,destPath,filepath,destName):
+		from datetime import datetime	
+		logging.info("Moving %s to %s" % (filepath,destName))
+		if os.path.exists(destPath) == False:
+		        os.makedirs(destPath)
+	                os.chmod(destPath,0777)
+	                os.chown(destPath,65534,65534)
+	        shutil.move(filepath,destName)
+	        os.chmod(destName,0777)
+	        os.chown(destName,65534,65534)
+	        self.updatedb(destName,destPath)
+	
+	def removeSpace(self,file=None,dir=None,char='_'):
+		if file <> None:
+			if os.path.isfile(file):
+				self.removeSpaceFile(file,char)
+			else:
+				raise NameError('%s is not a file'%(file))
+		elif dir <> None:
+			if os.path.isdir(dir):
+				self.removeSpaceDir(dir,char)
+			else:
+				raise NameError('%s is not a Directory'%(dir))
+		else:
+			raise NameError('Both File and Dir are None')
+		return
+	
+	def removeSpaceDir(self,dir,char):
+		for file in os.listdir(dir):
+			fname = os.path.join(dir,file)
+			if os.path.isfile(fname):
+				self.removeSpaceFile(fname,char)
+	
+	def removeSpaceFile(self,file,char):
+		oldFileName = file
+		newFileName = file.replace(' ',char)
+		shutil.move(oldFileName,newFileName)
+
+	def run( self ):
+		while not self._stopevent.isSet():
+			try:
+				ia = imdb.IMDb()
+		                db = MySQLdb.connect(host="192.168.1.3", user = "nTesla", passwd = "deathray", db = "madSci",use_unicode="True")
+		                self.cursor = db.cursor()
+		                self.removeSpace(dir=self._download_path,char="_")
+		                dirList=sorted(os.listdir(self._download_path))
+	
+				for fname in dirList:
+					filepath = os.path.join(self._download_path,fname)
+					if os.path.isfile(filepath):
+						ext=fname[-3:]
+                				fname = fname.replace(" - "," ")
+						if ext in ('avi', 'mp4', 'mkv'):
+							try:
+								result=re.search("[Ss][0-9][0-9]",fname)
+								seasonNumber=result.group(0).lstrip("sS")
+								result=re.search("[Ee][0-9][0-9]",fname)
+								epsNumber=result.group(0).lstrip("Ee")
+								result= re.split('\.[Ss][0-9][0-9][Ee][0-9][0-9]',fname)
+								showname=result[0].replace('.','_')
+				                		showname=showname.replace(' ','_')
+								orgShowName=showname
+								if re.match('[0-9][0-9][0-9][0-9]',showname[-4:]):
+									showname=showname[:-5]
+							except:
+								try:
+									result = re.search("[0-9][0-9]x[0-9][0-9]",fname)
+                                                                        seasonNumber =result.group(0)[:2]
+                                                                        epsNumber = result.group(0)[-2:]
+                                                                        result = re.split("[0-9][0-9]x[0-9][0-9]",fname)
+                                                                        showname=result[0].replace('.','_')
+                                                                        showname=showname.replace(' ','_')[:-1]
+									
+								except:
+
+									try:
+										result = re.search("[0-9]x[0-9][0-9]",fname)
+										seasonNumber ="0%s"%(result.group(0)[:1])
+										epsNumber = result.group(0)[-2:]
+										result = re.split("[0-9]x[0-9][0-9]",fname)
+										showname=result[0].replace('.','_')
+        			                			       	showname=showname.replace(' ','_')[:-1]
+									except:
+										result = re.search("[0-9][0-9][0-9]",fname)
+        			        	        			if result <> None:
+											seasonNumber =result.group(0)[:1]
+        		        	        		                	epsNumber = result.group(0)[-2:]
+        		                	        		        	result = re.split("[0-9][0-9][0-9]",fname)
+        		                        			       		showname=result[0].replace('.','_')
+			                        		 	        	showname=showname.replace(' ','_')[:-1]
+										else:
+											try:
+												result = re.search("[0-9][0-9]",fname)
+												seasonNumber =result.group(0)[:1]
+		                                                                                epsNumber = result.group(0)[-2:]
+        		                                                                        result = re.split("[0-9][0-9]",fname)
+        	        	                                                                showname=result[0].replace('.','_')
+															
+        	                	                                                        showname=showname.replace(' ','_')[:-1]
+		
+											except:
+												logging.error("Invalid Showname: %s",fname)
+							finally:
+								orgShowName = showname	
+							if self.anime(fname):
+								(destName,destPath)=self.anime_exceptions(showname,fname)
+								self.move(destPath,filepath,destName)
+								continue
+							qry = "select name from main_tv_shows where name = '%s'" % (showname.replace("_"," "))
+							self.cursor.execute(qry)
+							if self.cursor.rowcount < 1:
+								logging.warning("No Show called :%s: or :%s:" % (orgShowName,showname))
+								orgShowName = ""
+								continue
+							else:
+								showname = self.cursor.fetchall()[0][0].replace(" ","_")
+							orgShowName = ""
+							qry = "select eps_name from main_eps_data inner join main_tv_shows on main_tv_shows.id = main_eps_data.show_id where main_tv_shows.name = '%s' and main_eps_data.eps_number = 'S%sE%s'" % (showname.replace("_"," "),seasonNumber,epsNumber)
+							self.cursor.execute(qry)
+                                                        if self.cursor.rowcount == 1: 
+								epsName = self.cursor.fetchall()[0][0]
+								epsName = epsName.replace(" ","_")
+                                                                fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
+								destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
+                                                                destName = os.path.join(destPath,fileName.replace('/',','))
+                                                        	self.move (destPath,filepath,destName)
+							else:
+								show_r = ia.search_movie(showname.replace("_"," "))
+								for res in show_r:
+									if res['kind'] == 'tv series':
+										show=res
+										break	
+								ia.update(show)
+								genre = show['genre']
+								animated = False
+								for g in genre:
+									if g == 'Animation':
+										animated = True
+								ia.update(show,'episodes')
+								try:
+									title=show['episodes'][int(seasonNumber)][int(epsNumber)]
+									epsName = "%s" %(title)
+									epsName = epsName.replace(" ","_")
+									fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
+								except:
+									fileName = "%s.S%sE%s.%s" % (showname,seasonNumber,epsNumber,ext)
+								if animated:
+									destPath = os.path.join(self._base_path_a,showname,"Season%s"%(seasonNumber))
+								else:
+									destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
+								destName = os.path.join(destPath,fileName.replace('/',','))
+								self.move (destPath,filepath,destName)
+			except(KeyboardInterrupt):
+		                logging.waring("KeyboardInterrupt from main Thread, exiting")
+			except:
+				e = sys.exc_info()[1]
+				logging.error("%s" % (e))
+			self._stopevent.wait(self._sleepPeriod)
+	def join(self, timeout=None):
+                logging.warning("Exiting Thread :%s" %(self.getName()))
+		self._stopevent.set()
+                threading.Thread.join(self, timeout)
+
+class msRssDownload(threading.Thread):
+	def __init__(self):
+        	threading.Thread.__init__(self)
+        	self._stopevent = threading.Event()
+        	self._sleepPeriod = .25
+		self._downloadLocation= "/torrents/"
+	def downloadKF(self,URL):
+		return
+		import urllib
+		import csv
+		linksReader = csv.reader(open('linksOnePiece.csv', 'rb'), delimiter=',', quotechar='|')
+		try:
+			oldLinks=linksReader.next()
+		except:
+			oldLinks=[]
+		sock = urllib.urlopen(URL)
+		htmlSource = sock.read()
+		sock.close()
+		htmlLines=htmlSource.split('\n')
+		links = []
+		for line in htmlLines:
+			div = line.split('"')
+			for token in div: 
+				if ("torrent" in token):
+					links.append(token)
+		for link in links:
+			if oldLinks.count(link) == 0:
+				torrentName=link.split('/')[-1]
+				logging.info("Downloading %s" % (link))
+				try:
+					urllib.urlretrieve(link,self._downloadLocation+torrentName)
+				except:
+                                	e = sys.exc_info()[1]
+                                	logging.error("%s" % (e))
+		linkWriter = csv.writer(open('linksOnePiece.csv', 'wb'), delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+		linkWriter.writerow(links)
+	
+	def run(self):
+		while not self._stopevent.isSet():
+			db = MySQLdb.connect(host="192.168.1.3", user = "nTesla", passwd = "deathray", db = "madSci",use_unicode="True")
+			cursor = db.cursor()
+			socket.setdefaulttimeout(5)
+			query = "select id,name,url,last_update,show_type from main_tv_shows where active = 1 order by name"
+			cursor.execute(query)
+			result_set = cursor.fetchall()
+			for row in result_set:
+				if self._stopevent.isSet():
+					continue
+				id = row[0]
+			        name = row[1]
+			        url = row[2]
+			        lastUpdate=row[3]
+				show_type=row[4]
+				logging.info("Checking on show %s" %(name))
+                                logging.debug("from url %s" %(url))
+                                if (name == "One Piece K-F"):
+                                        self.downloadKF(url)
+					query = "update main_tv_shows set last_checked = '%s' where id = %i" % (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()),id)
+	                                cursor.execute(query)
+                                        self._stopevent.wait(self._sleepPeriod)
+                                        continue
+			        newLastUpdate = lastUpdate
+			        feed = feedparser.parse(url)
+				try:	
+					logging.warning("Feed Errored out with message %s" % (feed['bozo_exception'].rsrip()))
+				except:	
+					for e in feed['entries']:
+				                curURL= e['links'][0]['href']
+						if ("\.torrent" not in curURL and show_type=='tvshow'):
+							curURL = e['enclosures'][0]['href']
+				                urlDateP = datetime.datetime(*e['updated_parsed'][:6])
+				                urlDate = e['updated']
+				                if urlDateP == None or lastUpdate == None or urlDateP > lastUpdate :
+				                        torrentName= e['title_detail']['value']+".torrent"
+				                        if curURL <> None:
+				                                logging.info( "getting %s filename %s" %(name,torrentName))
+								try:
+									dlURL = curURL
+				                                	urllib.urlretrieve(dlURL,self._downloadLocation+torrentName)
+								except Exception as e:
+	                                				logging.error("Problem getting Torrent:%s from %s" % (torrentName,curURL))
+        	                        				logging.error(type(e))
+        	                        				logging.error(e)
+									continue
+								if urlDateP == None or newLastUpdate == None or urlDateP > newLastUpdate:
+									if urlDateP == None:
+										newLastUpdate = datetime.datetime.now()
+									else:
+				                                        	newLastUpdate = urlDateP
+ 				                                        query = "update main_tv_shows set last_update = '%s' where id = %i" % (newLastUpdate,id)
+				                                        cursor.execute(query)
+				
+				        query = "update main_tv_shows set last_checked = '%s' where id = %i" % (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()),id)
+				        cursor.execute(query)
+					self._stopevent.wait(self._sleepPeriod)
+			if self._sleepPeriod == .25:
+				self._sleepPeriod = 5.0
+				logging.info("Changing sleep period from 1/4 sec to 5 sec")
+	def join(self, timeout=None):
+		logging.warning("Exiting Thread :%s" %(self.getName()))
+		self._stopevent.set()
+	        threading.Thread.join(self, timeout)
+
+if __name__ == "__main__":
+	LOG_FILENAME='/tmp/msserver.log'
+	logging.basicConfig(level=logging.INFO,
+		format='%(asctime)s\t\t%(levelname)s\t\t%(threadName)s\t %(message)s',
+	        datefmt='%m-%d %H:%M:%S',
+	        filename=LOG_FILENAME,
+	        filemode='a')
+	console = logging.StreamHandler()
+	formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(threadName)s\t %(message)s',datefmt='%m-%d %H:%M:%S')
+	console.setFormatter(formatter)
+	logging.getLogger('').addHandler(console)
+	try:
+		stopEvent = threading.Event()
+		mover = msFileMover()
+		mover.setName("File Mover")
+		mover.start()
+		download =msRssDownload()
+		download.setName("Downloader")
+		download.start()
+	except (KeyboardInterrupt):
+		threading.Event()
+		logging.warning("KeyboardInterrupt from main Thread, exiting")
+	while not stopEvent.isSet():
+		try:
+			time.sleep(1)
+		except:
+			logging.warning("KeyboardInterrupt from main Thread, exiting")
+			mover.join(1)
+			download.join(1)
+			stopEvent.set()
+		
