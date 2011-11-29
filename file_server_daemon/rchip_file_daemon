@@ -10,6 +10,7 @@ import shutil,urllib
 import time,datetime,string
 import urllib2
 import urllib
+import json
 	
 class msFileMover(threading.Thread):
         def __init__(self):
@@ -23,17 +24,22 @@ class msFileMover(threading.Thread):
 
 	
 	def updatedb(self,name,path):
-		url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s" % (urllib.quote(name))
-		logging.info(url)
-		urllib2.urlopen(url)
+		if not self.anime(name):
+			url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s" % (urllib.quote(name))
+			logging.info(url)
+			urllib2.urlopen(url)
 	        tickerMessage = "%s Done|%s|%s" %(name,name,path)
-	        query = "select devices_name from rchip_remote_devices where active = 1"
-		self.cursor.execute(query)
-		resultSets = self.cursor.fetchall()
 		messageRecips = []
-	        for result in resultSets:
-			if not result[0] in messageRecips:
-	        		messageRecips.append(result[0])
+		url = "http://nosideholdings.com/json/getremotedevice/"
+                sock = urllib2.urlopen(url)
+		htmlSource = sock.read()
+		print htmlSource
+		for jsonSource in json.loads(htmlSource):
+			try:
+				jsonSource['devices_name']
+				messageRecips.append(jsonSource['devices_name'])
+			except:
+				None
 		for recpit in messageRecips:
 			url = "http://www.nosideholdings.com/json/sendcommand/?command=TMSG&command_text=%s&source_hostname=Tomoya&destination_hostname=%s" %(urllib.quote(tickerMessage),urllib.quote(recpit))
 			logging.info("Opening URL: %s" % (url))
@@ -287,7 +293,6 @@ class msRssDownload(threading.Thread):
 		self._downloadLocation= "/torrents/"
 	def downloadKF(self,URL):
 		return
-		import urllib
 		import csv
 		linksReader = csv.reader(open('linksOnePiece.csv', 'rb'), delimiter=',', quotechar='|')
 		try:
