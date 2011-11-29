@@ -62,6 +62,10 @@ def json_register_remote_device(request):
         return JSONResponse(response)
 
 @csrf_exempt
+def json_get_remote_device(request):
+	return JSONResponse(remote_devices.objects.all().filter(active=True).values('devices_name'))
+
+@csrf_exempt
 def json_get_song_info(request):
         host = request.GET['host']
 	if host!=None:
