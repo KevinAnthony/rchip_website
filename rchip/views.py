@@ -18,7 +18,6 @@ def json_get_daemons(request):
 def json_get_video_path(request):
 	host = request.GET['host']
 	if host!=None:
-		print host
 		path = daemon_register.objects.all().filter(hostname=host)
 	else:
 		path = daemon_register.objects.all()
