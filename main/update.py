@@ -10,6 +10,7 @@ class updateEpsList():
 		self.baseurl = 'http://www.thetvdb.com/api/%s/series'%(self.apikey)
 	
 	def update(self):
+		eps_data.objects.filter(uri="").delete()
 		for list in self.showList:
 			seriesID = list.thetvdb_id
 			showName = list.name
