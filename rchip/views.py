@@ -31,11 +31,6 @@ def json_send_command(request):
 	source_hostname_in = request.GET['source_hostname']
 	destination_hostname_in = request.GET['destination_hostname']
 	if (command_in != None):
-		if (command_text_in != None):
-			command_text_in = command_text_in.replace("'","\'")
-			command_text_in = command_text_in.replace('\\',"\\\\")
-			command_text_in = command_text_in.replace('\'',"\\\'")
-			command_text_in = command_text_in.replace(';',"\\;")
 		com_que = command_queue(command=command_in,command_text=command_text_in,source_hostname=source_hostname_in,destination_hostname=destination_hostname_in)
 		com_que.save()
 		response['success']=True
