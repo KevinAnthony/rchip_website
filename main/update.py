@@ -72,7 +72,7 @@ class updateEpsList():
 
 
 	def processFile(self,url):
-		try
+		try:
 			urllib.urlretrieve(url,"/var/www/nsh/en.zip")
 			file = zipfile.ZipFile("/var/www/nsh/en.zip", "r")
 			for name in file.namelist():
@@ -81,7 +81,7 @@ class updateEpsList():
 					xml = parseString(data)
 			os.unlink("/var/www/nsh/en.zip")	
 			return xml
-		except (Exception e):
+		except Exception,e:
 			logging.error(e)	
 			return None
 
