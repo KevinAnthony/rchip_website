@@ -6,9 +6,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
 import os
 
-#TODO change all if something = None to try, except
-#TODO write offload functions
-
 @csrf_exempt
 def json_get_daemons(request):
         daemons = daemon_register.objects.all()
@@ -121,6 +118,27 @@ def json_show_downloaded(request):
 	e.save()
 	return JSONResponse(None)
 	
-	
-#write json_show_checked
-#write json_show_updated
+@csrf_exempt
+def json_is_valid_show(request):
+	show_name = request.GET['show_name']
+	response = {}
+	try:
+		s = tv_shows.objects.get(name=show_name)
+		response['valid']=True
+	except:
+		response['valid']=False
+	return JSONResponse(response)	
+
+@csrf_exempt
+def json_get_episode_name(request):
+	show_name = request.GET['show_name']
+	episode = int(request.GET['episode'])
+	season = int(request.GET['season'])
+	retval = {}
+	eps_number = 'S%02dE%02d' %(season,episode)
+	try:
+		e = eps_data.objects.get(show=tv_shows.objects.get(name=show_name),eps_number=eps_number)
+		retval['name']=e.eps_name	
+		return JSONResponse(retval)
+	except:
+		return JSONResponse(None)

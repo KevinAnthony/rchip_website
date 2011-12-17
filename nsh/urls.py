@@ -25,6 +25,8 @@ urlpatterns = patterns('',
 	url(r'^json/setsonginfo/','rchip.views.json_set_song_info'),
 	url(r'^json/getcommand/','rchip.views.json_get_command'),
 	url(r'^json/showdownloaded/','rchip.views.json_show_downloaded'),
+	url(r'^json/isvalidshow/','rchip.views.json_is_valid_show'),
+	url(r'^json/getepisodename/','rchip.views.json_get_episode_name'),
 	
 	url(r'^accounts/login/$','django.contrib.auth.views.login', {'template_name': 'main/login.html', }),
 	url(r'^accounts/logout/$', 'main.views.logout_view'),
