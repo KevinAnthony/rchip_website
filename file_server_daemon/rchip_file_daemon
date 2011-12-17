@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import SOAPpy,feedparser
-import MySQLdb, imdb
 import logging
 import logging.handlers
 import threading,socket
@@ -11,6 +10,8 @@ import time,datetime,string
 import urllib2
 import urllib
 import json
+
+import MySQLdb
 	
 class msFileMover(threading.Thread):
         def __init__(self):
@@ -33,7 +34,6 @@ class msFileMover(threading.Thread):
 		url = "http://nosideholdings.com/json/getremotedevice/"
                 sock = urllib2.urlopen(url)
 		htmlSource = sock.read()
-		print htmlSource
 		for jsonSource in json.loads(htmlSource):
 			try:
 				jsonSource['devices_name']
@@ -163,9 +163,6 @@ class msFileMover(threading.Thread):
 	def run( self ):
 		while not self._stopevent.isSet():
 			try:
-				ia = imdb.IMDb()
-		                db = MySQLdb.connect(host="192.168.1.3", user = "nTesla", passwd = "deathray", db = "madSci",use_unicode="True")
-		                self.cursor = db.cursor()
 		                self.removeSpace(dir=self._download_path,char="_")
 		                dirList=sorted(os.listdir(self._download_path))
 	
@@ -230,50 +227,25 @@ class msFileMover(threading.Thread):
 								(destName,destPath)=self.anime_exceptions(showname,fname)
 								self.move(destPath,filepath,destName)
 								continue
-							qry = "select name from main_tv_shows where name = '%s'" % (showname.replace("_"," "))
-							self.cursor.execute(qry)
-							if self.cursor.rowcount < 1:
+					                url = "http://nosideholdings.com/json/isvalidshow/?show_name=%s" %(urllib.quote(showname.replace("_"," ")))
+					                sock = urllib2.urlopen(url)
+                					htmlSource = sock.read()
+               						jsonSource = json.loads(htmlSource)
+                       					if not jsonSource['valid']:
+								logging.warning(url)
 								logging.warning("No Show called :%s: or :%s:" % (orgShowName,showname))
-								orgShowName = ""
-								continue
-							else:
-								showname = self.cursor.fetchall()[0][0].replace(" ","_")
-							orgShowName = ""
-							qry = "select eps_name from main_eps_data inner join main_tv_shows on main_tv_shows.id = main_eps_data.show_id where main_tv_shows.name = '%s' and main_eps_data.eps_number = 'S%sE%s'" % (showname.replace("_"," "),seasonNumber,epsNumber)
-							self.cursor.execute(qry)
-                                                        if self.cursor.rowcount == 1: 
-								epsName = self.cursor.fetchall()[0][0]
-								epsName = epsName.replace(" ","_")
+                                                       	        orgShowName = ""
+                                                       	        continue
+					                url = "http://nosideholdings.com/json/getepisodename/?show_name=%s&season=%s&episode=%s" %(urllib.quote(showname.replace("_"," ")),urllib.quote(seasonNumber),urllib.quote(epsNumber))
+					                sock = urllib2.urlopen(url)
+                					htmlSource = sock.read()
+               						jsonSource = json.loads(htmlSource)
+							if jsonSource:
+								epsName = jsonSource['name']	
                                                                 fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
 								destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
                                                                 destName = os.path.join(destPath,fileName.replace('/',','))
                                                         	self.move (destPath,filepath,destName)
-							else:
-								show_r = ia.search_movie(showname.replace("_"," "))
-								for res in show_r:
-									if res['kind'] == 'tv series':
-										show=res
-										break	
-								ia.update(show)
-								genre = show['genre']
-								animated = False
-								for g in genre:
-									if g == 'Animation':
-										animated = True
-								ia.update(show,'episodes')
-								try:
-									title=show['episodes'][int(seasonNumber)][int(epsNumber)]
-									epsName = "%s" %(title)
-									epsName = epsName.replace(" ","_")
-									fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
-								except:
-									fileName = "%s.S%sE%s.%s" % (showname,seasonNumber,epsNumber,ext)
-								if animated:
-									destPath = os.path.join(self._base_path_a,showname,"Season%s"%(seasonNumber))
-								else:
-									destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
-								destName = os.path.join(destPath,fileName.replace('/',','))
-								self.move (destPath,filepath,destName)
 			except(KeyboardInterrupt):
 		                logging.waring("KeyboardInterrupt from main Thread, exiting")
 			except:
