@@ -4,7 +4,7 @@ from main.models import eps_data,tv_shows
 from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
-import os
+import os,time
 
 @csrf_exempt
 def json_get_daemons(request):
@@ -142,3 +142,26 @@ def json_get_episode_name(request):
 		return JSONResponse(retval)
 	except:
 		return JSONResponse(None)
+
+@csrf_exempt
+def json_get_active_shows(request):
+        shows=tv_shows.objects.all().filter(active=1)
+        return JSONResponse(shows.values('id','name','url','last_update','show_type'))
+
+@csrf_exempt
+def json_update_last_check(request):
+	id = request.GET['id']
+	date = time.strptime(request.GET['update_date'],"%Y-%m-%d %H:%M:%S",)
+	tv = tv_shows.objects.get(id=id)
+	tv.last_checked = date
+	tv.save()	
+	return JSONResponse(None)
+
+@csrf_exempt
+def json_update_last_update(request):
+	id = request.GET['id']
+	date = time.strptime(request.GET['update_date'],"%Y-%m-%d %H:%M:%S",)
+	tv = tv_shows.objects.get(id=id)
+	tv.last_updated = date
+	tv.save()	
+	return JSONResponse(None)
