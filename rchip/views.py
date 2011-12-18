@@ -5,7 +5,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
 import os,time
-
+from datetime import datetime
 @csrf_exempt
 def json_get_daemons(request):
         daemons = daemon_register.objects.all()
@@ -160,8 +160,8 @@ def json_update_last_check(request):
 @csrf_exempt
 def json_update_last_update(request):
 	id = request.GET['id']
-	date = time.strptime(request.GET['update_date'],"%Y-%m-%d %H:%M:%S",)
+	date = request.GET['update_date']
 	tv = tv_shows.objects.get(id=id)
-	tv.last_updated = date
-	tv.save()	
+	tv.last_update = date
+	tv.save()
 	return JSONResponse(None)
