@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # Create your models here.
 
 class tv_shows(models.Model):
@@ -10,10 +10,12 @@ class tv_shows(models.Model):
 	last_update = models.DateTimeField(default='1983-06-27 00:00:00')
 	last_checked = models.DateTimeField(auto_now=True)
 	active = models.IntegerField()
+	download = models.BooleanField()
 	thetvdb_id = models.IntegerField()
 	air_time = models.IntegerField(default = 0)
 	def __unicode__(self):
         	return self.name
+
 class eps_data(models.Model):
 	show = models.ForeignKey('tv_shows')
 	air_date = models.DateTimeField("Show Air Date")
@@ -24,4 +26,9 @@ class eps_data(models.Model):
 	css_markup = ""
 	class Meta:
 		unique_together = (("show","eps_number"))
-	
+
+class user_tv_shows(models.Model):
+	show = models.ForeignKey('tv_shows')
+	user = models.ForeignKey(User)
+	class Meta:
+                unique_together = (("show","user"))

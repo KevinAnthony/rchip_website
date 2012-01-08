@@ -12,8 +12,8 @@ from forms import AddForm
 # Create your views here.
 @login_required
 def index(request):
-	Weights_list = Weight.objects.filter(username=request.user.username).order_by('-date')
-	Weights_chart_list = Weight.objects.filter(username=request.user.username).order_by('date')
+	Weights_list = Weight.objects.filter(user=request.user.id).order_by('-date')
+	Weights_chart_list = Weight.objects.filter(user=request.user.id).order_by('date')
 	Goal = 180
 	try:
 		Diff = Weights_chart_list[0].weight - Weights_list[0].weight

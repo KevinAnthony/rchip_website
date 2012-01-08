@@ -1,110 +1,132 @@
 from response import JSONResponse
 from rchip.models import command_queue,daemon_register,message_register,music_info,remote_devices
 from main.models import eps_data,tv_shows
-from django.contrib.auth import logout
+from django.contrib.auth import logout,login,authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
 import os,time
 from datetime import datetime
+
 @csrf_exempt
 def json_get_daemons(request):
-        daemons = daemon_register.objects.all()
-        return JSONResponse(daemons.values('hostname'))
+	id = get_id(request)
+	if id is not None:        
+		daemons = daemon_register.objects.all().filter(user=id)
+	        return JSONResponse(daemons.values('hostname'))
+	else :
+		return JSONResponse("Not Authorized")
 
 @csrf_exempt
 def json_get_video_path(request):
-	host = request.GET['host']
-	if host!=None:
-		path = daemon_register.objects.all().filter(hostname=host)
-	else:
-		path = daemon_register.objects.all()
-        return JSONResponse(path.values('path_to_root'))
+	id = get_id(request)
+        if id is not None:
+		host = request.GET['host']
+		if host!=None:
+			path = daemon_register.objects.all().filter(hostname=host,user=id)
+		else:
+			path = daemon_register.objects.all()
+	        return JSONResponse(path.values('path_to_root'))
+	else :
+		return JSONResponse("Not Authorized")
 
 @csrf_exempt
 def json_send_command(request):
-	response = {}
-	command_in = request.GET['command']
-	command_text_in = request.GET['command_text']
-	source_hostname_in = request.GET['source_hostname']
-	destination_hostname_in = request.GET['destination_hostname']
-	if (command_in != None):
-		com_que = command_queue(command=command_in,command_text=command_text_in,source_hostname=source_hostname_in,destination_hostname=destination_hostname_in)
-		com_que.save()
-		response['success']=True
-	else:
-		response['success']=False	
-        return JSONResponse(response)
+	id = get_id(request)
+        if id is not None:
+		response = {}
+		command_in = request.GET['command']
+		command_text_in = request.GET['command_text']
+		source_hostname_in = request.GET['source_hostname']
+		destination_hostname_in = request.GET['destination_hostname']
+		if (command_in != None):
+			com_que = command_queue(command=command_in,command_text=command_text_in,source_hostname=source_hostname_in,destination_hostname=destination_hostname_in,user=id)
+			com_que.save()
+			response['success']=True
+		else:
+			response['success']=False	
+	        return JSONResponse(response)
+	else :
+		return JSONResponse("Not Authorized")
+
 
 @csrf_exempt
 def json_register_remote_device(request):
-	response = {}
-        device_name_in = request.GET['device_name']
-        state_in = request.GET['state'] in ['true','TRUE','True','T','t','1']
-	if (device_name_in!=None):
-		try:
-			rem_dev = remote_devices.objects.get(devices_name=device_name_in)
-			rem_dev.active = state_in
-		except:
-			rem_dev = remote_devices(devices_name=device_name_in,active=state_in)
-		rem_dev.save()
-		response['success']=True
-        else:
-                response['success']=False
-        return JSONResponse(response)
+	id = get_id(request)
+        if id is not None:
+		response = {}
+	        device_name_in = request.GET['device_name']
+	        state_in = request.GET['state'] in ['true','TRUE','True','T','t','1']
+		if (device_name_in!=None):
+			try:
+				rem_dev = remote_devices.objects.get(devices_name=device_name_in)
+				rem_dev.active = state_in
+				rem_dev.user = id
+			except:
+				rem_dev = remote_devices(devices_name=device_name_in,active=state_in,user=id)
+			rem_dev.save()
+			response['success']=True
+	        else:
+	                response['success']=False
+	        return JSONResponse(response)
+	else :
+		return JSONResponse("Not Authorized")
 
 @csrf_exempt
 def json_get_remote_device(request):
-	return JSONResponse(remote_devices.objects.all().filter(active=True).values('devices_name'))
+	id = get_id(request)
+        if id is not None:
+		return JSONResponse(remote_devices.objects.all().filter(active=True,user=id).values('devices_name'))
 
 @csrf_exempt
 def json_get_song_info(request):
-        host = request.GET['host']
-	if host!=None:
-		mus = music_info.objects.all().filter(destination_hostname=host)
-        	return JSONResponse(mus.values('artist','album','song','elapsed_time','total_time','is_playing'))
-	return JSONResponse(None)
+	id = get_id(request)
+        if id is not None:
+	        host = request.GET['host']
+		if host!=None:
+			mus = music_info.objects.all().filter(destination_hostname=host,user=id)
+	        	return JSONResponse(mus.values('artist','album','song','elapsed_time','total_time','is_playing'))
+		return JSONResponse(None)
+	else :
+		return JSONResponse("Not Authorized")
 
 @csrf_exempt
 def json_set_song_info(request):
-	artist = request.GET['artist']
-	album = request.GET['album']
-	song = request.GET['song']
-	e_time = request.GET['elapsed_time']
-	t_time = request.GET['total_time']
-	is_playing = request.GET['is_playing']
-	d_hostname = request.GET['dest_hostname']
-	obj, created = music_info.objects.get_or_create(destination_hostname=d_hostname, defaults={'artist':artist,'album':album,'song':song,'elapsed_time':e_time,'total_time':t_time,'is_playing':is_playing})
-        if not created:
-		obj.artist = artist
-		obj.album = artist
-		obj.song = song
-		obj.elapsed_time = e_time
-		obj.total_time = t_time
-		obj.is_playing = is_playing
-        obj.save()	
-	return JSONResponse(None)
+	id = get_id(request)
+        if id is not None:
+		artist = request.GET['artist']
+		album = request.GET['album']
+		song = request.GET['song']
+		e_time = request.GET['elapsed_time']
+		t_time = request.GET['total_time']
+		is_playing = request.GET['is_playing']
+		d_hostname = request.GET['dest_hostname']
+		obj, created = music_info.objects.get_or_create(destination_hostname=d_hostname, defaults={'artist':artist,'album':album,'song':song,'elapsed_time':e_time,'total_time':t_time,'is_playing':is_playing})
+        	if not created:
+			obj.artist = artist
+			obj.album = artist
+			obj.song = song
+			obj.elapsed_time = e_time
+			obj.total_time = t_time
+			obj.is_playing = is_playing
+		obj.user=id
+        	obj.save()	
+		return JSONResponse(None)
+	else :
+		return JSONResponse("Not Authorized")
 
 @csrf_exempt
 def json_get_command(request):
-        host = request.GET['host']
-	if host!=None:
-                command = command_queue.objects.all().filter(destination_hostname=host)
-		retval = JSONResponse(command.values('command','command_text'))
-		command.delete()
-		return retval
-        return JSONResponse(None)
-
-@csrf_exempt
-def json_show_exists(request):
-	show = request.GET['show_name']
-	#check database if show exists, return true/false
-	return JSONResponse(None)		
-
-@csrf_exempt
-def json_episode_name(request):
-        show = request.GET['show_name']
-	eps_name = request.GET['episode_number']
-	return JSONResponse(None)
+	id = get_id(request)
+        if id is not None:
+	        host = request.GET['host']
+		if host!=None:
+	                command = command_queue.objects.all().filter(destination_hostname=host,user=id)
+			retval = JSONResponse(command.values('command','command_text'))
+			command.delete()
+			return retval
+	        return JSONResponse(None)
+	else :
+		return JSONResponse("Not Authorized")
 
 @csrf_exempt
 def json_show_downloaded(request):
@@ -145,7 +167,7 @@ def json_get_episode_name(request):
 
 @csrf_exempt
 def json_get_active_shows(request):
-        shows=tv_shows.objects.all().filter(active=1)
+        shows=tv_shows.objects.all().filter(active=1,download=True)
         return JSONResponse(shows.values('id','name','url','last_update','show_type'))
 
 @csrf_exempt
@@ -165,3 +187,41 @@ def json_update_last_update(request):
 	tv.last_update = date
 	tv.save()
 	return JSONResponse(None)
+
+@csrf_exempt
+def json_authenticate(request):
+	response = {}
+	if request.user.is_authenticated():
+		response['success'] = True
+		response['Message'] = 'User Already Authenticated'
+	else:
+		username = request.GET['username']
+    		password = request.GET['password']
+    		user = authenticate(username=username, password=password)
+		if user is not None:
+			if user.is_active:
+				response['success'] = True
+				response['Message'] = 'User Authenticated'
+				request.session['member_id'] = user.id
+			else:
+				response['success'] = False
+                                response['Message'] = 'User Account Disabled'
+		else:
+			response['success'] = False
+                        response['Message'] = 'Invalid Credentials'
+	return JSONResponse(response)
+
+@csrf_exempt
+def json_deauthenticate(request):
+	response = {}
+	logout(request)
+	response['success'] = True
+	return JSONResponse(response)
+
+
+
+def get_id(request):
+	try:
+		return request.session['member_id']
+	except:
+		return None

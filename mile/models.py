@@ -1,6 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-# Create your models here.
+# Creatght_weightue your models here.
 class car(models.Model):
 	make = models.CharField(max_length=16)
 	model  = models.CharField(max_length=30)
@@ -16,13 +17,4 @@ class mileage(models.Model):
 	mpg = models.DecimalField(max_digits=4,decimal_places=2)
 	octain = models.IntegerField()
 	gas_station = models.CharField(max_length=64)
-	userName = models.CharField(max_length=64)
-
-class coinJar(models.Model):
-	dollars = models.IntegerField()
-	quarters = models.IntegerField()
-	dimes = models.IntegerField()
-	nickles = models.IntegerField()
-	pennies = models.IntegerField()
-	dateChanged = models.DateTimeField(auto_now=True)
-	userName = models.CharField(max_length=64)
+	user = models.ForeignKey(User)

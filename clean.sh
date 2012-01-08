@@ -1,3 +1,3 @@
 #~ /usr/bash
 find . -name *pyc -delete
-rm -rf static/admin 
+rm -rf static/admin
