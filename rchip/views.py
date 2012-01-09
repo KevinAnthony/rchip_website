@@ -1,6 +1,7 @@
 from response import JSONResponse
 from rchip.models import command_queue,daemon_register,message_register,music_info,remote_devices
 from main.models import eps_data,tv_shows
+from django.contrib.auth.models import User
 from django.contrib.auth import logout,login,authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt
@@ -9,9 +10,10 @@ from datetime import datetime
 
 @csrf_exempt
 def json_get_daemons(request):
+	print request.user
 	id = get_id(request)
 	if id is not None:        
-		daemons = daemon_register.objects.all().filter(user=id)
+		daemons = daemon_register.objects.all().filter(user=User.objects.get(id=id))
 	        return JSONResponse(daemons.values('hostname'))
 	else :
 		return JSONResponse("Not Authorized")
@@ -22,7 +24,7 @@ def json_get_video_path(request):
         if id is not None:
 		host = request.GET['host']
 		if host!=None:
-			path = daemon_register.objects.all().filter(hostname=host,user=id)
+			path = daemon_register.objects.all().filter(hostname=host,user=User.objects.get(id=id))
 		else:
 			path = daemon_register.objects.all()
 	        return JSONResponse(path.values('path_to_root'))
@@ -33,19 +35,21 @@ def json_get_video_path(request):
 def json_send_command(request):
 	id = get_id(request)
         if id is not None:
+		print "Got Here"
 		response = {}
 		command_in = request.GET['command']
 		command_text_in = request.GET['command_text']
 		source_hostname_in = request.GET['source_hostname']
 		destination_hostname_in = request.GET['destination_hostname']
 		if (command_in != None):
-			com_que = command_queue(command=command_in,command_text=command_text_in,source_hostname=source_hostname_in,destination_hostname=destination_hostname_in,user=id)
+			com_que = command_queue(command=command_in,command_text=command_text_in,source_hostname=source_hostname_in,destination_hostname=destination_hostname_in,user=User.objects.get(id=id))
 			com_que.save()
 			response['success']=True
 		else:
 			response['success']=False	
 	        return JSONResponse(response)
 	else :
+		print "Authentication Failed"
 		return JSONResponse("Not Authorized")
 
 
@@ -60,9 +64,9 @@ def json_register_remote_device(request):
 			try:
 				rem_dev = remote_devices.objects.get(devices_name=device_name_in)
 				rem_dev.active = state_in
-				rem_dev.user = id
+				rem_dev.user = User.objects.get(id=id)
 			except:
-				rem_dev = remote_devices(devices_name=device_name_in,active=state_in,user=id)
+				rem_dev = remote_devices(devices_name=device_name_in,active=state_in,user=User.objects.get(id=id))
 			rem_dev.save()
 			response['success']=True
 	        else:
@@ -75,7 +79,10 @@ def json_register_remote_device(request):
 def json_get_remote_device(request):
 	id = get_id(request)
         if id is not None:
-		return JSONResponse(remote_devices.objects.all().filter(active=True,user=id).values('devices_name'))
+		try:
+			return JSONResponse(remote_devices.objects.all().filter(active=True,user=User.objects.get(id=id)).values('devices_name'))
+		except:
+			return JSONResponse(None)
 
 @csrf_exempt
 def json_get_song_info(request):
@@ -83,7 +90,7 @@ def json_get_song_info(request):
         if id is not None:
 	        host = request.GET['host']
 		if host!=None:
-			mus = music_info.objects.all().filter(destination_hostname=host,user=id)
+			mus = music_info.objects.all().filter(destination_hostname=host,user=User.objects.get(id=id))
 	        	return JSONResponse(mus.values('artist','album','song','elapsed_time','total_time','is_playing'))
 		return JSONResponse(None)
 	else :
@@ -108,7 +115,7 @@ def json_set_song_info(request):
 			obj.elapsed_time = e_time
 			obj.total_time = t_time
 			obj.is_playing = is_playing
-		obj.user=id
+		obj.user=User.objects.get(id=id)
         	obj.save()	
 		return JSONResponse(None)
 	else :
@@ -116,11 +123,15 @@ def json_set_song_info(request):
 
 @csrf_exempt
 def json_get_command(request):
+	if request.session.test_cookie_worked():
+		print "Worked"
+	else:
+		print "Didn't Work"
 	id = get_id(request)
         if id is not None:
 	        host = request.GET['host']
 		if host!=None:
-	                command = command_queue.objects.all().filter(destination_hostname=host,user=id)
+	                command = command_queue.objects.all().filter(destination_hostname=host,user=User.objects.get(id=id))
 			retval = JSONResponse(command.values('command','command_text'))
 			command.delete()
 			return retval
@@ -190,6 +201,7 @@ def json_update_last_update(request):
 
 @csrf_exempt
 def json_authenticate(request):
+    	request.session.set_test_cookie()
 	response = {}
 	if request.user.is_authenticated():
 		response['success'] = True
