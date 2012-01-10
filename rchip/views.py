@@ -10,7 +10,6 @@ from datetime import datetime
 
 @csrf_exempt
 def json_get_daemons(request):
-	print request.user
 	id = get_id(request)
 	if id is not None:        
 		daemons = daemon_register.objects.all().filter(user=User.objects.get(id=id))
@@ -35,7 +34,6 @@ def json_get_video_path(request):
 def json_send_command(request):
 	id = get_id(request)
         if id is not None:
-		print "Got Here"
 		response = {}
 		command_in = request.GET['command']
 		command_text_in = request.GET['command_text']
@@ -49,7 +47,6 @@ def json_send_command(request):
 			response['success']=False	
 	        return JSONResponse(response)
 	else :
-		print "Authentication Failed"
 		return JSONResponse("Not Authorized")
 
 
@@ -123,10 +120,6 @@ def json_set_song_info(request):
 
 @csrf_exempt
 def json_get_command(request):
-	if request.session.test_cookie_worked():
-		print "Worked"
-	else:
-		print "Didn't Work"
 	id = get_id(request)
         if id is not None:
 	        host = request.GET['host']
@@ -201,7 +194,6 @@ def json_update_last_update(request):
 
 @csrf_exempt
 def json_authenticate(request):
-    	request.session.set_test_cookie()
 	response = {}
 	if request.user.is_authenticated():
 		response['success'] = True
