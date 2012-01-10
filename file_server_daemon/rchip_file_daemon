@@ -5,12 +5,11 @@ import logging
 import logging.handlers
 import threading,socket
 import os ,re, sys,time
-import shutil,urllib
+import shutil
 import time,datetime,string
-import urllib2
 import urllib
 import json
-
+import requests
 	
 class msFileMover(threading.Thread):
         def __init__(self):
@@ -21,18 +20,22 @@ class msFileMover(threading.Thread):
                 self._base_path_l = "/mnt/raid/English/Live_Action"
                 self._base_path_a = "/mnt/raid/English/Animated"
                 self._base_path_Anime = "/mnt/raid/Foreign/Animeted"
+		self.session = requests.session()
+		self.session.get("http://www.nosideholdings.com/json/authenticate/?username=Kevin&password=Inverse81")
 
-	
+	def __del__(self):
+		self.session.get('http://www.nosideholdings.com/json/deauthenticate/')
+
 	def updatedb(self,name,path):
 		if not self.anime(name):
 			url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s" % (urllib.quote(name))
 			logging.info(url)
-			urllib2.urlopen(url)
-	        tickerMessage = "%s Done|%s|%s" %(name,name,path)
+	        	self.session.get(url)
+		tickerMessage = "%s Done|%s|%s" %(name,name,path)
 		messageRecips = []
 		url = "http://nosideholdings.com/json/getremotedevice/"
-                sock = urllib2.urlopen(url)
-		htmlSource = sock.read()
+		htmlSource = self.session.get(url).content
+		print htmlSource
 		for jsonSource in json.loads(htmlSource):
 			try:
 				jsonSource['devices_name']
@@ -42,8 +45,7 @@ class msFileMover(threading.Thread):
 		for recpit in messageRecips:
 			url = "http://www.nosideholdings.com/json/sendcommand/?command=TMSG&command_text=%s&source_hostname=Tomoya&destination_hostname=%s" %(urllib.quote(tickerMessage),urllib.quote(recpit))
 			logging.info("Opening URL: %s" % (url))
-			urllib.urlopen(url)
-
+			self.session.get(url)
 	def exceptions(self,inname):
 		if inname == "Castle_2009":
 			outname = "Castle"
@@ -227,8 +229,7 @@ class msFileMover(threading.Thread):
 								self.move(destPath,filepath,destName)
 								continue
 					                url = "http://nosideholdings.com/json/isvalidshow/?show_name=%s" %(urllib.quote(showname.replace("_"," ")))
-					                sock = urllib2.urlopen(url)
-                					htmlSource = sock.read()
+                					htmlSource = self.session.get(url).content
                						jsonSource = json.loads(htmlSource)
                        					if not jsonSource['valid']:
 								logging.warning(url)
@@ -236,8 +237,7 @@ class msFileMover(threading.Thread):
                                                        	        orgShowName = ""
                                                        	        continue
 					                url = "http://nosideholdings.com/json/getepisodename/?show_name=%s&season=%s&episode=%s" %(urllib.quote(showname.replace("_"," ")),urllib.quote(seasonNumber),urllib.quote(epsNumber))
-					                sock = urllib2.urlopen(url)
-                					htmlSource = sock.read()
+                					htmlSource = self.session.get(url).content
                						jsonSource = json.loads(htmlSource)
 							if jsonSource:
 								epsName = jsonSource['name']	
@@ -270,8 +270,7 @@ class msRssDownload(threading.Thread):
 			oldLinks=linksReader.next()
 		except:
 			oldLinks=[]
-		sock = urllib.urlopen(URL)
-		htmlSource = sock.read()
+		htmlSource = requests.get(URL).content
 		sock.close()
 		htmlLines=htmlSource.split('\n')
 		links = []
@@ -297,8 +296,7 @@ class msRssDownload(threading.Thread):
 			socket.setdefaulttimeout(5)
 	
 			url = "http://www.nosideholdings.com/json/getactiveshows"
-                	sock = urllib2.urlopen(url)
-			htmlSource = sock.read()
+			htmlSource = requests.get(url).content
 			for jsonSource in json.loads(htmlSource):
 				if self._stopevent.isSet():
 					continue
@@ -337,9 +335,9 @@ class msRssDownload(threading.Thread):
 									continue
 								if urlDateP == None or newLastUpdate == None or urlDateP > newLastUpdate:
 									url = "http://www.nosideholdings.com/json/updatelastupdate?id=%i&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
-									urllib2.urlopen(url)
+									requests.get(url)
 					url = "http://www.nosideholdings.com/json/updatelastcheck?id=%i&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
-					urllib2.urlopen(url)
+					requests.get(url)
 					self._stopevent.wait(self._sleepPeriod)
 			if self._sleepPeriod == .25:
 				self._sleepPeriod = 5.0
@@ -360,6 +358,7 @@ if __name__ == "__main__":
 	formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(threadName)s\t %(message)s',datefmt='%m-%d %H:%M:%S')
 	console.setFormatter(formatter)
 	logging.getLogger('').addHandler(console)
+	logging.getLogger('requests').setLevel(logging.WARNING)
 	try:
 		stopEvent = threading.Event()
 		mover = msFileMover()
