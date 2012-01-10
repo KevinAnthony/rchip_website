@@ -12,9 +12,12 @@ urlpatterns = patterns('',
 	url(r'^weight/add/$','weight.views.add'),
 
 	url(r'^hack/$','hack.views.index'),
-	url(r'^$','main.views.index'),
-	url(r'^main/$','main.views.index'),
-	url(r'^main/update/$','main.views.update'),
+
+	url(r'^$','main.views.main_index'),
+	url(r'^main/$','main.views.main_index'),
+	url(r'^main/update/$','main.views.main_update'),
+	url(r'^main/tvshows/$','main.views.main_config_tv_shows'),
+	url(r'^main/addshow/$','main.views.main_add_tv_show'),
 
 	url(r'^json/getdaemons/','rchip.views.json_get_daemons'),
 	url(r'^json/getvideopath/','rchip.views.json_get_video_path'),

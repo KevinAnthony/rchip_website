@@ -9,7 +9,7 @@ class tv_shows(models.Model):
 	last_eps = models.CharField(max_length=10)
 	last_update = models.DateTimeField(default='1983-06-27 00:00:00')
 	last_checked = models.DateTimeField(auto_now=True)
-	active = models.IntegerField()
+	active = models.BooleanField()
 	download = models.BooleanField()
 	thetvdb_id = models.IntegerField()
 	air_time = models.IntegerField(default = 0)

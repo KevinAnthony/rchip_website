@@ -1,6 +1,6 @@
 from django.template import Context, loader, RequestContext
 from django import template
-from main.models import eps_data,tv_shows
+from main.models import eps_data,tv_shows,user_tv_shows
 from django.http import HttpResponse,HttpResponseRedirect
 from datetime import datetime,timedelta
 from main.update import updateEpsList 
@@ -12,6 +12,7 @@ from django.core.context_processors import csrf
 # Create your views here.
 @csrf_exempt
 def main_index(request):
+	
 	now = datetime.now()
 	tda = now - timedelta(7)
 	filterName = ""
@@ -64,8 +65,44 @@ def register(request):
 	return HttpResponseRedirect("/")
     else:
 	form = UserCreationForm()
-	t = loader.get_template('templetes/register.html')
+	t = loader.get_template('templates/register.html')
 	c = RequestContext(request,{'form': form ,'user':request.user,})
 	return HttpResponse(t.render(c))
 
-
+@csrf_exempt
+def main_config_tv_shows(request):
+	tv_shows_list = tv_shows.objects.all()
+	for show in tv_shows_list:
+		if user_tv_shows.objects.filter(show=show):
+			show.user_show=True
+		else:
+			show.user_show=False
+	if request.method == 'POST':
+		for show in tv_shows_list:
+			if request.POST.get("active_%s"%(show.name)):
+				active=True
+			else:
+				active=False
+			if request.POST.get("download_%s"%(show.name)):
+				download=True
+			else:
+				download=False
+			if request.POST.get("show_%s"%(show.name)):
+				user_show=True
+			else:
+				user_show=False
+			if show.active != active or show.download != download:
+				show.active=active
+				show.download=download
+				show.save()
+			if show.user_show != user_show:
+				if user_show:
+					user_tv_shows(show=show,user=request.user).save()
+				else:
+					user_tv_shows.objects.filter(show=show).delete()
+	t = loader.get_template('templates/main_tv_shows.html')
+        c = RequestContext(request,{'tv_show_list': tv_shows_list ,'user':request.user,})
+        return HttpResponse(t.render(c))	
+	
+def main_add_tv_show(request):
+	return HttpResponse(None)
