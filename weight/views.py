@@ -37,7 +37,7 @@ def index(request):
 		elif w.weight > Max:
 			Max = w.weight
 			maxDate = w.date
-	t = loader.get_template('weight/index.html')
+	t = loader.get_template('templates/weight_index.html')
 	c = Context({
 		'Weights_list': Weights_list,
 		'Weights_chart_list': Weights_chart_list,
@@ -69,7 +69,7 @@ def add(request):
                     return HttpResponseRedirect('/weight/')
    	else:
         	form = AddForm()
-	t = loader.get_template('weight/add.html')
+	t = loader.get_template('templates/weight_add.html')
 	c = RequestContext(request,{
 		'form': form,
 		'user':request.user,

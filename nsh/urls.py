@@ -33,7 +33,7 @@ urlpatterns = patterns('',
 	url(r'^json/authenticate/','rchip.views.json_authenticate'),
 	url(r'^json/deauthenticate/','rchip.views.json_deauthenticate'),
 	
-	url(r'^accounts/login/$','django.contrib.auth.views.login', {'template_name': 'main/login.html', }),
+	url(r'^accounts/login/$','django.contrib.auth.views.login', {'template_name': 'templates/login.html', }),
 	url(r'^accounts/logout/$', 'main.views.logout_view'),
 	url(r'^accounts/register/$', 'main.views.register'),
     # Uncomment the admin/doc line below to enable admin documentation:

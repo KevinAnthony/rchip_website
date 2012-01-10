@@ -48,7 +48,7 @@ def index(request):
 						correntWordCorrect = "%s is a valid word" %(CW)
    	else:
         	form = HackForm()
-	t = loader.get_template('hack/index.html')
+	t = loader.get_template('templates/hack_index.html')
 	c = RequestContext(request,{
 		'form': form ,
                 'word1error': word1error,

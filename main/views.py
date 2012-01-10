@@ -11,7 +11,7 @@ from django.core.context_processors import csrf
 
 # Create your views here.
 @csrf_exempt
-def index(request):
+def main_index(request):
 	now = datetime.now()
 	tda = now - timedelta(7)
 	filterName = ""
@@ -38,7 +38,7 @@ def index(request):
 			e.css_markup = "currentrow" 
 		if e.downloaded:
 			e.uri = e.uri.replace("/mnt/raid/","ftp://192.168.1.3/")
-	t = loader.get_template('main/index.html')
+	t = loader.get_template('templates/main_index.html')
 	future = now + timedelta(7)
 	c = Context({
 		'eps_list': eps_list,
@@ -48,7 +48,7 @@ def index(request):
 	})
 	return HttpResponse(t.render(c))
 
-def update(request):
+def main_update(request):
 	updateEpsList().update()
 	return index(request)
 
@@ -64,7 +64,7 @@ def register(request):
 	return HttpResponseRedirect("/")
     else:
 	form = UserCreationForm()
-	t = loader.get_template('main/register.html')
+	t = loader.get_template('templetes/register.html')
 	c = RequestContext(request,{'form': form ,'user':request.user,})
 	return HttpResponse(t.render(c))
 
