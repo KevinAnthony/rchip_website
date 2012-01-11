@@ -1,0 +1,31 @@
+{% extends "templates/base.html" %}
+{% load static %}
+{% block title %}Kevin's Amazing Website{% endblock %}
+{% block content %}
+  <form id="form" name="form" method="post" action="/main/tvshows/">
+    <input class="pbutton" type="submit" value="Save" />
+    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+    Please don't modifiy the avtive column unless your sure you know what your doing -- Kevin<br />
+    <table border="1" cellpadding="1" cellspacing="1" >
+      <tr class="tableTop">
+        <th>Show Name</th>
+        <th>RSS URL</th>
+        <th>Active</th>
+        <th>Download</th>
+	<th>Show</th>
+      </tr>
+      {% for show in tv_show_list %} 
+        <tr class="futurerow">
+          <td>{{ show.name }}</td>
+          <td>{{ show.url }}</td>
+          <td><input type="checkbox" name="active_{{ show.name }}" {% if show.active %} checked="yes" {%endif%}></td>
+          <td><input type="checkbox" name="download_{{ show.name }}" {% if show.download %} checked="yes" {%endif%}></td>
+          <td><input type="checkbox" name="show_{{ show.name }}" {% if show.user_show %} checked="yes" {%endif%}></td>
+	  <td> </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </form>
+{% endblock %}
