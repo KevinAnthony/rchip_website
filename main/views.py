@@ -12,20 +12,29 @@ from django.core.context_processors import csrf
 # Create your views here.
 @csrf_exempt
 def main_index(request):
-	
 	now = datetime.now()
 	tda = now - timedelta(7)
 	filterName = ""
-	if request.method == 'POST':
-		filterName = request.POST.get("show","")
-		if filterName == "":
-			eps_list = eps_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
+	if request.user.is_authenticated():
+		if request.method == 'POST':
+			filterName = request.POST.get("show","")
+			if filterName == "":
+				eps_list = eps_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
+			else:
+				eps_list = eps_data.objects.filter(show__name=filterName,show__user_tv_shows__user=request.user).order_by('eps_number')
 		else:
-			eps_list = eps_data.objects.filter(show = tv_shows.objects.get(name=filterName),air_date__gte=now - timedelta(365)).order_by('air_date','eps_number')
-			eps_list = eps_data.objects.filter(show = tv_shows.objects.get(name=filterName)).order_by('eps_number')
+			eps_list = eps_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
+		show_list = tv_shows.objects.filter(show_type = "tvshow",active=1,user_tv_shows__user=request.user).order_by('name')
 	else:
-		eps_list = eps_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
-	show_list = tv_shows.objects.filter(show_type = "tvshow",active=1).order_by('name')
+		if request.method == 'POST':
+			filterName = request.POST.get("show","")
+			if filterName == "":
+				eps_list = eps_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
+			else:
+				eps_list = eps_data.objects.filter(show = tv_shows.objects.get(name=filterName)).order_by('eps_number')
+		else:
+			eps_list = eps_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
+		show_list = tv_shows.objects.filter(show_type = "tvshow",active=1).order_by('name')
 	for e in eps_list:
 		if e.air_date < (now - timedelta(hours=1)):
 			e.css_markup = "oldrow"
