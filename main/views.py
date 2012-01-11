@@ -1,13 +1,16 @@
 from django.template import Context, loader, RequestContext
-from django import template
-from main.models import eps_data,tv_shows,user_tv_shows
+from django import template,forms
+from main.models import eps_data,tv_shows,tv_shows_form,user_tv_shows
 from django.http import HttpResponse,HttpResponseRedirect
+from django.shortcuts import render_to_response
 from datetime import datetime,timedelta
 from main.update import updateEpsList 
 from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 @csrf_exempt
@@ -78,6 +81,7 @@ def register(request):
 	c = RequestContext(request,{'form': form ,'user':request.user,})
 	return HttpResponse(t.render(c))
 
+@login_required
 @csrf_exempt
 def main_config_tv_shows(request):
 	tv_shows_list = tv_shows.objects.all()
@@ -112,6 +116,19 @@ def main_config_tv_shows(request):
 	t = loader.get_template('templates/main_tv_shows.html')
         c = RequestContext(request,{'tv_show_list': tv_shows_list ,'user':request.user,})
         return HttpResponse(t.render(c))	
-	
+
+@login_required	
 def main_add_tv_show(request):
-	return HttpResponse(None)
+    if request.method == 'POST':
+    	form = tv_shows_form(request.POST)
+	if form.is_valid():
+		if not tv_shows.objects.filter(name=form.cleaned_data['name']):
+			form.save()
+		else:
+			raise ValidationError("Show %s already in Database" % (form.cleaned_data['name']))
+    else:
+    	form = tv_shows_form()
+    t = loader.get_template('templates/main_add_tv_form.html')
+    c = RequestContext(request,{"form":form})
+    return HttpResponse(t.render(c))
+    

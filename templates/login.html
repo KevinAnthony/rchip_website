@@ -4,26 +4,26 @@
 {% load url from future %}
 {% block content %}
 
-	{% if form.errors %}
-	<p>Your username and password didn't match. Please try again.</p>
-	{% endif %}
-	
-	<form class="info" method="post" action="{% url 'django.contrib.auth.views.login' %}">
-	{% csrf_token %}
-	<table class="info">
-	<tr>
-	    <td>{{ form.username.label_tag }}</td>
-	    <td>{{ form.username }}</td>
-	</tr>
-	<tr>
-	    <td>{{ form.password.label_tag }}</td>
-	    <td>{{ form.password }}</td>
-	</tr>
-	</table>
-	
-	<input class="pbuttonsmall" type="submit" value="login" />
-	<a class="pbuttonsmall" href="/accounts/register/">Register</a>
-	<input type="hidden" name="next" value="/" />
+  {% if form.errors %}
+  <p>Your username and password didn't match. Please try again.</p>
+  {% endif %}
+  
+  <form class="info" method="post" action="{% url 'django.contrib.auth.views.login' %}">
+  {% csrf_token %}
+  <table class="info">
+  <tr>
+    <td>{{ form.username.label_tag }}</td>
+    <td>{{ form.username }}</td>
+  </tr>
+  <tr>
+    <td>{{ form.password.label_tag }}</td>
+    <td>{{ form.password }}</td>
+  </tr>
+  </table>
+  
+  <input class="pbuttonsmall" type="submit" value="login" />
+  <a class="pbuttonsmall" href="/accounts/register/">Register</a>
+  <input type="hidden" name="next" value="/" />
 </form>
 
 {% endblock %}

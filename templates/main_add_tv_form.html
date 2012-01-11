@@ -1,0 +1,39 @@
+{% extends "templates/base.html" %}
+{% block title %}Add Tv Show{% endblock %}
+{% block scripts %}
+  <script language="JavaScript">
+    <!--
+      function autoFillRss(){
+        if(document.form.autofillrss.checked == true){
+          if (document.form.name.value == ''){
+            alert('Please fill out show name first');
+            document.form.autofillrss.checked = false;
+            return;
+          }
+          showName = document.form.name.value.replace(/ /g,'+');
+          rssValue = 'http://ezrss.it/search/index.php?show_name='+showName.toLowerCase()+'&show_name_exact=true&date=&quality=HDTV&quality_exact=true&release_group=&mode=rss';
+          document.form.url.value = rssValue;
+        }
+      }
+    -->
+  </script>
+{% endblock %}
+{% block content %}
+  <form id="form" name="form" method="post" action="/main/addshow/">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.name.errors }}<br>{{ form.name.label_tag }}: {{ form.name }}<br>
+    <br><label for="autofillrss">Autofill RSS?</label>:<input type="checkbox" name="autofillrss" onClick="autoFillRss()"><br>
+    {{ form.url.errors }}<br>{{ form.url.label_tag }}: {{ form.url }}<br>
+    {{ form.show_type.errors }}<br>{{ form.show_type.label_tag }}: {{ form.show_type }}<br>
+    {{ form.last_eps.errors }}<br>{{ form.last_eps.label_tag }}: {{ form.last_eps }}<br>
+    {{ form.active.errors }}<br>{{ form.active.label_tag }}: {{ form.active }}<br>
+    {{ form.download.errors }}<br>{{ form.download.label_tag }}: {{ form.download }}<br>
+    {{ form.thetvdb_id.errors }}<br>{{ form.thetvdb_id.label_tag }}: {{ form.thetvdb_id }}<br>
+    {{ form.air_time.errors }}<br>{{ form.air_time.label_tag }}: {{ form.air_time }}<br>
+    {{ form.last_update.errors }}<br>{{ form.last_update.label_tag }}: {{ form.last_update }}<br>
+    <input type="submit" class="pbutton" value="Save"/>
+    <input type="reset" class="pbutton" value="Clear"/>
+    <div class="spacer"></div>
+  </form>
+{% endblock %}

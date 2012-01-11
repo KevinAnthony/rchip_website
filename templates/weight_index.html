@@ -14,103 +14,102 @@
         data.addColumn('date', 'Date');
         data.addColumn('number', 'Weight');
         data.addRows([
-	{% for w in Weights_chart_list %}
-          [new Date({{ w.date.year }}, {{ w.date.month }}-1 ,{{ w.date.day }}), {{ w.weight }}],
-        {% endfor %}
-	]);
+          {% for w in Weights_chart_list %}
+            [new Date({{ w.date.year }}, {{ w.date.month }}-1 ,{{ w.date.day }}), {{ w.weight }}],
+          {% endfor %}
+        ]);
 
         var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
         chart.draw(data, {displayAnnotations: true, scaleType:'maximize'});
       }
     </script>
     <script type='text/javascript'>
-		function removeClassName (elem, className) {
-	        elem.className = elem.className.replace(className, "").trim();
-	}
-	
-	function addCSSClass (elem, className) {
-	        removeClassName (elem, className);
-	        elem.className = (elem.className + " " + className).trim();
-	}
-	
-	String.prototype.trim = function() {
-	        return this.replace( /^\s+|\s+$/, "" );
-	}
-	
-	function stripedTable() {
-	        if (document.getElementById && document.getElementsByTagName) {
-	                var allTables = document.getElementsByTagName('table');
-	                if (!allTables) { return; }
-	
-	                for (var i = 0; i < allTables.length; i++) {
-	                        if (allTables[i].className.match(/[\w\s ]*scrollTable[\w\s ]*/)) {
-	                                var trs = allTables[i].getElementsByTagName("tr");
-	                                for (var j = 0; j < trs.length; j++) {
-	                                        removeClassName(trs[j], 'alternateRow');
-	                                        addCSSClass(trs[j], 'normalRow');
-	                                }
-	                                for (var k = 0; k < trs.length; k += 2) {
-	                                        removeClassName(trs[k], 'normalRow');
-	                                        addCSSClass(trs[k], 'alternateRow');
-	                                }
-	                        }
-	                }
-	        }
-	}
-	
-	window.onload = function() { stripedTable(); }
-</script>
+      function removeClassName (elem, className) {
+        elem.className = elem.className.replace(className, "").trim();
+      }
+  
+      function addCSSClass (elem, className) {
+        removeClassName (elem, className);
+        elem.className = (elem.className + " " + className).trim();
+      }
+  
+      String.prototype.trim = function() {
+        return this.replace( /^\s+|\s+$/, "" );
+      }
+  
+      function stripedTable() {
+        if (document.getElementById && document.getElementsByTagName) {
+          var allTables = document.getElementsByTagName('table');
+          if (!allTables) { return; }
+          for (var i = 0; i < allTables.length; i++) {
+            if (allTables[i].className.match(/[\w\s ]*scrollTable[\w\s ]*/)) {
+              var trs = allTables[i].getElementsByTagName("tr");
+              for (var j = 0; j < trs.length; j++) {
+                removeClassName(trs[j], 'alternateRow');
+                addCSSClass(trs[j], 'normalRow');
+              }
+              for (var k = 0; k < trs.length; k += 2) {
+                removeClassName(trs[k], 'normalRow');
+                addCSSClass(trs[k], 'alternateRow');
+              }
+            }
+          }
+        }
+      }
+  
+    window.onload = function() { stripedTable(); }
+  </script>
 {% endblock %}
-{% block content %}
-<div id="header"><h1>Weight Loss Plan</h1></div>
-<div id="navsub">
-<ul>
-<li><a class="pbuttonsmall" href="add/">Add Data</a></li>
-<li><a class="pbuttonsmall" href="#">Delete Data(Does Nothing)</a></li>
-</ul>
-<br />
-</div>
-<div>
-<br />
-</div>
-<div id="mainleft">
-<div id="tableContainer" class="tableContainer">
-  <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable">
-    <thead class="fixedHeader">
-      <tr>
-        <th><a href="#">Date</a></th>
-        <th><a href="#">Weight</a></th>
-      </tr>
-    </thead>
-    <tbody class="scrollContent">
-	{% for w in Weights_list %} 
-	<tr>
-		<td>{{ w.date }}</td>
-		<td>{{ w.weight }}lb</td>
-	</td>
-	{% endfor %}
-    </tbody>
-  </table>
-</div>
-</div>
-<div id="sidebarleft"> <br />
-	<div id='chart_div' style='width: 500px; height: 240px;'></div>
 
-</div>
-<div id="footer"> <br />
-<h1 >
-<ul>
-<li>GOAL: {{ Goal }}lb</li> 
-<li>Gain/Loss: {{ Diff }}lb {{Str}}</li>
-<li>To Go: {{ ToGo}}lb </li>
-</ul><ul>
-<li>Min Weight {{ Min }}lb on {{ minDate }}</li>
-<li>Max Weight {{ Max }}lb on {{ maxDate }}</li>
-</ul>
-</h1>
-</div>
-</div>
+{% block content %}
+  <div id="header"><h1>Weight Loss Plan</h1></div>
+  <div id="navsub">
+    <ul>
+      <li><a class="pbuttonsmall" href="add/">Add Data</a></li>
+      <li><a class="pbuttonsmall" href="#">Delete Data(Does Nothing)</a></li>
+    </ul>
+    <br />
+  </div>
+  <div>
+    <br />
+  </div>
+  <div id="mainleft">
+    <div id="tableContainer" class="tableContainer">
+      <table border="0" cellpadding="0" cellspacing="0" width="100%" class="scrollTable">
+        <thead class="fixedHeader">
+          <tr>
+            <th><a href="#">Date</a></th>
+            <th><a href="#">Weight</a></th>
+          </tr>
+        </thead>
+        <tbody class="scrollContent">
+          {% for w in Weights_list %} 
+            <tr>
+              <td>{{ w.date }}</td>
+              <td>{{ w.weight }}lb</td>
+            </td>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div id="sidebarleft"> <br />
+    <div id='chart_div' style='width: 500px; height: 240px;'></div>
+  </div>
+  <div id="footer"> <br />
+    <h1>
+      <ul>
+        <li>GOAL: {{ Goal }}lb</li> 
+        <li>Gain/Loss: {{ Diff }}lb {{Str}}</li>
+        <li>To Go: {{ ToGo}}lb </li>
+      </ul>
+      <ul>
+        <li>Min Weight {{ Min }}lb on {{ minDate }}</li>
+        <li>Max Weight {{ Max }}lb on {{ maxDate }}</li>
+      </ul>
+    </h1>
+  </div>
 {% endblock %}
 {% else %}
-	<p>No Weights are available.</p>
+  <p>No Weights are available.</p>
 {% endif %}

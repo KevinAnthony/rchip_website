@@ -9,19 +9,18 @@
 <body>
 <div id="wrap">
   <div id="nav">
-        <ul>
-		<li><a class="pbutton" href="/main/">Main Page</a></li>
-                <li><a class="pbutton" href="/hack/">Fallout Hacker</a></li>
-		<li><a class="pbutton" href="/weight/">Weight Monitor</a></li>
-		<li><a class="pbutton" href="/weight/">Mileage</a></li>
-                {% if user.is_authenticated %}
-		    <li><a class="pbutton" href="/main/tvshows/">TV Show Settings</a></li>
-		    <li><a class="pbutton" href="/accounts/logout/"> Logout:{{ user.username }}</a></li>
-                {% else %}
-                    <li><a class="pbutton" href="/accounts/login/">Login</a></li>
-                {% endif %}
-                
-        </ul>
+    <ul>
+      <li><a class="pbutton" href="/main/">Main Page</a></li>
+      <li><a class="pbutton" href="/hack/">Fallout Hacker</a></li>
+      <li><a class="pbutton" href="/weight/">Weight Monitor</a></li>
+      <li><a class="pbutton" href="/weight/">Mileage</a></li>
+      {% if user.is_authenticated %}
+        <li><a class="pbutton" href="/main/tvshows/">TV Show Settings</a></li>
+        <li><a class="pbutton" href="/accounts/logout/"> Logout:{{ user.username }}</a></li>
+      {% else %}
+        <li><a class="pbutton" href="/accounts/login/">Login</a></li>
+      {% endif %}
+    </ul>
   </div>
   {% block content %}{% endblock %}
   <div id="footer"></div>

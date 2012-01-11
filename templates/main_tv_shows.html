@@ -3,6 +3,7 @@
 {% block title %}Kevin's Amazing Website{% endblock %}
 {% block content %}
   <form id="form" name="form" method="post" action="/main/tvshows/">
+    <a class="pbutton" href="/main/addshow/">Add A Show</a>
     <input class="pbutton" type="submit" value="Save" />
     &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
     &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
@@ -14,7 +15,7 @@
         <th>RSS URL</th>
         <th>Active</th>
         <th>Download</th>
-	<th>Show</th>
+        <th>Show</th>
       </tr>
       {% for show in tv_show_list %} 
         <tr class="futurerow">
@@ -23,7 +24,7 @@
           <td><input type="checkbox" name="active_{{ show.name }}" {% if show.active %} checked="yes" {%endif%}></td>
           <td><input type="checkbox" name="download_{{ show.name }}" {% if show.download %} checked="yes" {%endif%}></td>
           <td><input type="checkbox" name="show_{{ show.name }}" {% if show.user_show %} checked="yes" {%endif%}></td>
-	  <td> </td>
+          <td> </td>
         </tr>
       {% endfor %}
     </table>
