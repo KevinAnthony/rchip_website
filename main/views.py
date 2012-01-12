@@ -63,7 +63,7 @@ def main_index(request):
 
 def main_update(request):
 	updateEpsList().update()
-	return index(request)
+	return main_index(request)
 
 def logout_view(request):
     logout(request)
@@ -86,7 +86,7 @@ def register(request):
 def main_config_tv_shows(request):
 	tv_shows_list = tv_shows.objects.all()
 	for show in tv_shows_list:
-		if user_tv_shows.objects.filter(show=show):
+		if user_tv_shows.objects.filter(show=show, user=request.user):
 			show.user_show=True
 		else:
 			show.user_show=False
