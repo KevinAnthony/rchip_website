@@ -35,7 +35,6 @@ class msFileMover(threading.Thread):
 		messageRecips = []
 		url = "http://nosideholdings.com/json/getremotedevice/"
 		htmlSource = self.session.get(url).content
-		print htmlSource
 		for jsonSource in json.loads(htmlSource):
 			try:
 				jsonSource['devices_name']
@@ -166,7 +165,6 @@ class msFileMover(threading.Thread):
 			try:
 		                self.removeSpace(dir=self._download_path,char="_")
 		                dirList=sorted(os.listdir(self._download_path))
-	
 				for fname in dirList:
 					filepath = os.path.join(self._download_path,fname)
 					if os.path.isfile(filepath):
@@ -240,7 +238,7 @@ class msFileMover(threading.Thread):
                 					htmlSource = self.session.get(url).content
                						jsonSource = json.loads(htmlSource)
 							if jsonSource:
-								epsName = jsonSource['name']	
+								epsName = jsonSource['name'].title().replace(' ','_')
                                                                 fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
 								destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
                                                                 destName = os.path.join(destPath,fileName.replace('/',','))
@@ -294,12 +292,12 @@ class msRssDownload(threading.Thread):
 	def run(self):
 		while not self._stopevent.isSet():
 			socket.setdefaulttimeout(5)
-	
 			url = "http://www.nosideholdings.com/json/getactiveshows"
 			htmlSource = requests.get(url).content
+			rs = []
 			for jsonSource in json.loads(htmlSource):
 				if self._stopevent.isSet():
-					continue
+					break
 				id = jsonSource['id']
 			        name = jsonSource['name']
 			        url = jsonSource['url']
