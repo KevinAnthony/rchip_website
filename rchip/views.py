@@ -1,6 +1,6 @@
 from response import JSONResponse
 from rchip.models import command_queue,daemon_register,message_register,music_info,remote_devices
-from main.models import eps_data,tv_shows
+from main.models import eps_data,tv_shows,user_tv_shows
 from django.contrib.auth.models import User
 from django.contrib.auth import logout,login,authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -222,6 +222,16 @@ def json_deauthenticate(request):
 	response['success'] = True
 	return JSONResponse(response)
 
+def json_get_upcoming_shows(request):
+	now = datetime.now()
+	id=get_id(request)
+	if id:
+		eps_list = eps_data.objects.filter(show__user_tv_shows__user=User.objects.get(id=id),air_date__gte=now)
+		#for eps in eps_list:
+		#	eps['show_id'] = tv_shows.objects.get(id = eps.show_id)
+		return JSONResponse(eps_list.values('show__name','air_date','eps_name','eps_number'))
+	else:
+		return JSONResponse("Not Authorized")
 
 
 def get_id(request):
