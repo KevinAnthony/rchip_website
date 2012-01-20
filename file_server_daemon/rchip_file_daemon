@@ -20,6 +20,7 @@ class msFileMover(threading.Thread):
                 self._base_path_l = "/mnt/raid/English/Live_Action"
                 self._base_path_a = "/mnt/raid/English/Animated"
                 self._base_path_Anime = "/mnt/raid/Foreign/Animeted"
+		self.session = requests.session()
 		self.session.get("http://www.nosideholdings.com/json/authenticate/?username=Kevin&password=Inverse81")
 
 	def __del__(self):
