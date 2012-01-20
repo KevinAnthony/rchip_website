@@ -146,7 +146,7 @@ def json_show_downloaded(request):
 		e.save()
 	for host in remote_devices.objects.all().filter(active=True): 
 		ticker = "%s %s %s Downloaded|%s|%s" %(showName,epsNumber,e.eps_name,file_path,file_name)
-		command_queue(command='TMSEG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=hosts.user_id))	
+		command_queue(command='TMSEG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))	
 	return JSONResponse(None)
 	
 @csrf_exempt
