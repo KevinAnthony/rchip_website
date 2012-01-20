@@ -136,12 +136,17 @@ def json_get_command(request):
 def json_show_downloaded(request):
 	file_path = request.GET['file_path']
 	file_name = os.path.basename(file_path)
-	showName = file_name.split('.')[0].replace('_',' ')
-	epsNumber = file_name.split('.')[1]
-	e = eps_data.objects.get(show=tv_shows.objects.get(name=showName),eps_number=epsNumber)
-	e.downloaded = True
-	e.uri = file_path
-	e.save()
+	is_anime = request.GET['anime']
+	if not is_anime:
+		showName = file_name.split('.')[0].replace('_',' ')
+		epsNumber = file_name.split('.')[1]
+		e = eps_data.objects.get(show=tv_shows.objects.get(name=showName),eps_number=epsNumber)
+		e.downloaded = True
+		e.uri = file_path
+		e.save()
+	for host in remote_devices.objects.all().filter(active=True): 
+		ticker = "%s %s %s Downloaded|%s|%s" %(showName,epsNumber,e.eps_name,file_path,file_name)
+		command_queue(command='TMSEG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=hosts.user_id))	
 	return JSONResponse(None)
 	
 @csrf_exempt
@@ -225,10 +230,8 @@ def json_deauthenticate(request):
 def json_get_upcoming_shows(request):
 	now = datetime.now()
 	id=get_id(request)
-	if id:
+	if id != None:
 		eps_list = eps_data.objects.filter(show__user_tv_shows__user=User.objects.get(id=id),air_date__gte=now)
-		#for eps in eps_list:
-		#	eps['show_id'] = tv_shows.objects.get(id = eps.show_id)
 		return JSONResponse(eps_list.values('show__name','air_date','eps_name','eps_number'))
 	else:
 		return JSONResponse("Not Authorized")

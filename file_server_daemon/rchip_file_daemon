@@ -20,31 +20,16 @@ class msFileMover(threading.Thread):
                 self._base_path_l = "/mnt/raid/English/Live_Action"
                 self._base_path_a = "/mnt/raid/English/Animated"
                 self._base_path_Anime = "/mnt/raid/Foreign/Animeted"
-		self.session = requests.session()
 		self.session.get("http://www.nosideholdings.com/json/authenticate/?username=Kevin&password=Inverse81")
 
 	def __del__(self):
 		self.session.get('http://www.nosideholdings.com/json/deauthenticate/')
 
 	def updatedb(self,name,path):
-		if not self.anime(name):
-			url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s" % (urllib.quote(name))
-			logging.info(url)
-	        	self.session.get(url)
-		tickerMessage = "%s Done|%s|%s" %(name,name,path)
-		messageRecips = []
-		url = "http://nosideholdings.com/json/getremotedevice/"
-		htmlSource = self.session.get(url).content
-		for jsonSource in json.loads(htmlSource):
-			try:
-				jsonSource['devices_name']
-				messageRecips.append(jsonSource['devices_name'])
-			except:
-				None
-		for recpit in messageRecips:
-			url = "http://www.nosideholdings.com/json/sendcommand/?command=TMSG&command_text=%s&source_hostname=Tomoya&destination_hostname=%s" %(urllib.quote(tickerMessage),urllib.quote(recpit))
-			logging.info("Opening URL: %s" % (url))
-			self.session.get(url)
+		url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s&anime=%s" % (urllib.quote(name),self.anime(name))
+		logging.info(url)
+	        self.session.get(url)
+	
 	def exceptions(self,inname):
 		if inname == "Castle_2009":
 			outname = "Castle"
