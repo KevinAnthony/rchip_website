@@ -136,7 +136,7 @@ def json_get_command(request):
 def json_show_downloaded(request):
 	file_path = request.GET['file_path']
 	file_name = os.path.basename(file_path)
-	is_anime = request.GET['anime']
+	is_anime = request.GET['anime'] == 'True'
 	if not is_anime:
 		showName = file_name.split('.')[0].replace('_',' ')
 		epsNumber = file_name.split('.')[1]
@@ -146,7 +146,7 @@ def json_show_downloaded(request):
 		e.save()
 	for host in remote_devices.objects.all().filter(active=True): 
 		ticker = "%s %s %s Downloaded|%s|%s" %(showName,epsNumber,e.eps_name,file_path,file_name)
-		command_queue(command='TMSEG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))	
+		command_queue(command='TMSG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))	
 	return JSONResponse(None)
 	
 @csrf_exempt
