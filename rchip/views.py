@@ -144,9 +144,11 @@ def json_show_downloaded(request):
 		e.downloaded = True
 		e.uri = file_path
 		e.save()
+	#TODO: Here we need to only get remote devices in which show_view is checled
 	for host in remote_devices.objects.all().filter(active=True): 
 		ticker = "%s %s %s Downloaded|%s|%s" %(showName,epsNumber,e.eps_name,file_path,file_name)
-		command_queue(command='TMSG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))	
+		cmd = command_queue(command='TMSG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))	
+		cmd.save()
 	return JSONResponse(None)
 	
 @csrf_exempt
