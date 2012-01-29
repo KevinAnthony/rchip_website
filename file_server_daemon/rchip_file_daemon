@@ -53,6 +53,8 @@ class msFileMover(threading.Thread):
             return True
         if len(re.split("C_The_Money_of_Soul_and_Possibility_Control",inname)) > 1:
             return True
+        if len(re.split("Hunter_X_Hunter",inname)) > 1:
+            return True
         return False
 
     def anime_exceptions(self,inname,fname):
@@ -95,7 +97,13 @@ class msFileMover(threading.Thread):
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "C_The_Money_of_Soul_and_possibility_Control"
-                ext=fname[-3:]    
+            if len(re.split("Hunter_X_Hunter",inname)) > 1:
+                groupname = result[1]
+                if groupname == "HorribleSubs":
+                    checkSum = result[3]
+                    eps_information = result[2][1:-1]
+                    folder = "Hunter_X_Hunter"
+	        ext=fname[-3:]    
         except:
             e = sys.exc_info()[1]
             logging.error("%s" % (e))
@@ -115,10 +123,10 @@ class msFileMover(threading.Thread):
             os.makedirs(destPath)
             os.chmod(destPath,0777)
             os.chown(destPath,65534,65534)
-            shutil.move(filepath,destName)
-            os.chmod(destName,0777)
-            os.chown(destName,65534,65534)
-            self.updatedb(destName,destPath)
+        shutil.move(filepath,destName)
+        os.chmod(destName,0777)
+        os.chown(destName,65534,65534)
+        self.updatedb(destName,destPath)
 
     def removeSpace(self,file=None,dir=None,char='_'):
         if file <> None:
