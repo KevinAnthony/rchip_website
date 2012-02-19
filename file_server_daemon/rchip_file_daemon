@@ -61,6 +61,7 @@ class msFileMover(threading.Thread):
         filepath=fname
         quality = None
         result = re.split("\[|\]",fname)
+        ext=fname[-3:]
         try:
             if len(re.split("One_Piece",inname)) > 1:
                 groupname = result[1]
@@ -103,7 +104,6 @@ class msFileMover(threading.Thread):
                     checkSum = result[3]
                     eps_information = result[2][1:-1]
                     folder = "Hunter_X_Hunter"
-	        ext=fname[-3:]    
         except:
             e = sys.exc_info()[1]
             logging.error("%s" % (e))
