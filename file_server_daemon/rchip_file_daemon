@@ -70,7 +70,7 @@ class msFileMover(threading.Thread):
                     quality = result[4]
                 else:
                     checkSum = result[3]
-                    eps_information = result[2][1:-1]
+                eps_information = result[2][1:-1]
                 folder = "One_Piece"
             if len(re.split("Fairy_Tail",inname)) > 1:
                 groupname = result[1]
@@ -79,8 +79,8 @@ class msFileMover(threading.Thread):
                     quality = result[3]
                 else:
                     checkSum = result[3]
-                    eps_information = result[2][1:-1]
-                    folder = "Fairy_Tail"
+                eps_information = result[2][1:-1]
+                folder = "Fairy_Tail"
             if len(re.split("Gintama",inname)) > 1:
                 groupname = result[1]
                 if groupname == "Rumbel":
@@ -102,8 +102,8 @@ class msFileMover(threading.Thread):
                 groupname = result[1]
                 if groupname == "HorribleSubs":
                     checkSum = result[3]
-                    eps_information = result[2][1:-1]
-                    folder = "Hunter_X_Hunter"
+                eps_information = result[2][1:-1]
+                folder = "Hunter_X_Hunter"
         except:
             e = sys.exc_info()[1]
             logging.error("%s" % (e))
