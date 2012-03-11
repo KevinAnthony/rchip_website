@@ -68,10 +68,10 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-	'/var/www/nsh/main/static/',
-	'/var/www/nsh/hack/static/',
-	'/var/www/nsh/mile/static/',
-	'/var/www/nsh/weight/static/',
+    '/var/www/nsh/main/static/',
+    '/var/www/nsh/hack/static/',
+    '/var/www/nsh/mile/static/',
+    '/var/www/nsh/weight/static/',
 )
 
 # List of finder classes that know how to find static files in

@@ -11,7 +11,7 @@ from datetime import datetime
 @csrf_exempt
 def json_get_daemons(request):
     id = get_id(request)
-    if id is not None:    
+    if id is not None:
         daemons = daemon_register.objects.all().filter(user=User.objects.get(id=id))
         return JSONResponse(daemons.values('hostname'))
     else :
@@ -66,7 +66,7 @@ def json_send_command(request):
             com_que.save()
             response['success']=True
         else:
-            response['success']=False    
+            response['success']=False
         return JSONResponse(response)
     else:
         return JSONResponse("Not Authorized")
@@ -135,7 +135,7 @@ def json_set_song_info(request):
             obj.total_time = t_time
             obj.is_playing = is_playing
         obj.user=User.objects.get(id=id)
-        obj.save()    
+        obj.save()
         return JSONResponse(None)
     else :
         return JSONResponse("Not Authorized")
@@ -170,11 +170,11 @@ def json_show_downloaded(request):
     else:
         ticker = "%s Downloaded|%s|%s" %(file_name,file_path,file_name)
     #TODO: Here we need to only get remote devices in which show_view is checled
-    for host in remote_devices.objects.all().filter(active=True): 
-        cmd = command_queue(command='TMSG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))    
+    for host in remote_devices.objects.all().filter(active=True):
+        cmd = command_queue(command='TMSG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))
         cmd.save()
     return JSONResponse(None)
-    
+
 @csrf_exempt
 def json_is_valid_show(request):
     show_name = request.GET['show_name']
@@ -184,7 +184,7 @@ def json_is_valid_show(request):
         response['valid']=True
     except:
         response['valid']=False
-    return JSONResponse(response)    
+    return JSONResponse(response)
 
 @csrf_exempt
 def json_get_episode_name(request):
@@ -195,7 +195,7 @@ def json_get_episode_name(request):
     eps_number = 'S%02dE%02d' %(season,episode)
     try:
         e = eps_data.objects.get(show=tv_shows.objects.get(name=show_name),eps_number=eps_number)
-        retval['name']=e.eps_name    
+        retval['name']=e.eps_name
         return JSONResponse(retval)
     except:
         return JSONResponse(None)
@@ -211,7 +211,7 @@ def json_update_last_check(request):
     date = time.strptime(request.GET['update_date'],"%Y-%m-%d %H:%M:%S",)
     tv = tv_shows.objects.get(id=id)
     tv.last_checked = date
-    tv.save()    
+    tv.save()
     return JSONResponse(None)
 
 @csrf_exempt

@@ -122,11 +122,11 @@ def main_config_tv_shows(request):
 def main_add_tv_show(request):
     if request.method == 'POST':
         form = tv_shows_form(request.POST)
-    if form.is_valid():
-        if not tv_shows.objects.filter(name=form.cleaned_data['name']):
-            form.save()
-        else:
-            raise ValidationError("Show %s already in Database" % (form.cleaned_data['name']))
+        if form.is_valid():
+            if not tv_shows.objects.filter(name=form.cleaned_data['name']):
+                form.save()
+            else:
+                raise ValidationError("Show %s already in Database" % (form.cleaned_data['name']))
     else:
         form = tv_shows_form()
     t = loader.get_template('templates/main_add_tv_form.html')

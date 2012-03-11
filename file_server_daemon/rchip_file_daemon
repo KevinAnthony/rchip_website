@@ -10,7 +10,7 @@ import time,datetime,string
 import urllib
 import json
 import requests
-    
+
 class msFileMover(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -94,7 +94,7 @@ class msFileMover(threading.Thread):
                 logging.info(result)
                 if groupname == "gg":
                     checkSum = result[3]
-                else:  
+                else:
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "C_The_Money_of_Soul_and_possibility_Control"
@@ -117,7 +117,7 @@ class msFileMover(threading.Thread):
         return (nFilePath,destPath)
 
     def move(self,destPath,filepath,destName):
-        from datetime import datetime    
+        from datetime import datetime
         logging.info("Moving %s to %s" % (filepath,destName))
         if os.path.exists(destPath) == False:
             os.makedirs(destPath)

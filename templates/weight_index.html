@@ -27,16 +27,16 @@
       function removeClassName (elem, className) {
         elem.className = elem.className.replace(className, "").trim();
       }
-  
+
       function addCSSClass (elem, className) {
         removeClassName (elem, className);
         elem.className = (elem.className + " " + className).trim();
       }
-  
+
       String.prototype.trim = function() {
         return this.replace( /^\s+|\s+$/, "" );
       }
-  
+
       function stripedTable() {
         if (document.getElementById && document.getElementsByTagName) {
           var allTables = document.getElementsByTagName('table');
@@ -56,7 +56,7 @@
           }
         }
       }
-  
+
     window.onload = function() { stripedTable(); }
   </script>
 {% endblock %}
@@ -83,7 +83,7 @@
           </tr>
         </thead>
         <tbody class="scrollContent">
-          {% for w in Weights_list %} 
+          {% for w in Weights_list %}
             <tr>
               <td>{{ w.date }}</td>
               <td>{{ w.weight }}lb</td>
@@ -99,7 +99,7 @@
   <div id="footer"> <br />
     <h1>
       <ul>
-        <li>GOAL: {{ Goal }}lb</li> 
+        <li>GOAL: {{ Goal }}lb</li>
         <li>Gain/Loss: {{ Diff }}lb {{Str}}</li>
         <li>To Go: {{ ToGo}}lb </li>
       </ul>
