@@ -267,10 +267,7 @@ class msRssDownload(threading.Thread):
                 id = jsonSource['id']
                 name = jsonSource['name']
                 url = jsonSource['url']
-                try:
-                    lastUpdate=datetime.datetime(*time.strptime(jsonSource['last_update'],"%Y-%m-%d %H:%M:%S",)[:6])
-                except:
-                    lastUpdate = datetime.datetime(*time.gmtime(0)[:6])
+                lastUpdate=datetime.datetime(*time.strptime(jsonSource['last_update'][:-6],"%Y-%m-%d %H:%M:%S")[:6])
                 show_type=jsonSource['show_type']
                 logging.info("Checking on show %s" %(name))
                 logging.debug("from url %s" %(url))
