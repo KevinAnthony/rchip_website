@@ -13,9 +13,9 @@ def json_get_daemons(request):
     id = get_id(request)
     if id is not None:
         daemons = daemon_register.objects.all().filter(user=User.objects.get(id=id))
-        return JSONResponse(daemons.values('hostname'))
+        return JSONResponse(daemons.values('hostname'),Extra={"Succeess":True})
     else :
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 @csrf_exempt
 def json_get_video_path(request):
@@ -26,9 +26,9 @@ def json_get_video_path(request):
             path = daemon_register.objects.all().filter(hostname=host,user=User.objects.get(id=id))
         else:
             path = daemon_register.objects.all()
-        return JSONResponse(path.values('path_to_root'))
+        return JSONResponse(path.values('path_to_root'),Extra={"Succeess":True})
     else :
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 @csrf_exempt
 def json_register_daemon(request):
@@ -48,9 +48,9 @@ def json_register_daemon(request):
             response['success']=True
         else:
             response['success']=False
-        return JSONResponse(response)
+        return JSONResponse(response,Extra={"Succeess":True})
     else:
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 @csrf_exempt
 def json_send_command(request):
@@ -67,9 +67,9 @@ def json_send_command(request):
             response['success']=True
         else:
             response['success']=False
-        return JSONResponse(response)
+        return JSONResponse(response,Extra={"Succeess":True})
     else:
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 
 @csrf_exempt
@@ -90,16 +90,16 @@ def json_register_remote_device(request):
             response['success']=True
         else:
             response['success']=False
-        return JSONResponse(response)
+        return JSONResponse(response,Extra={"Succeess":True})
     else :
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 @csrf_exempt
 def json_get_remote_device(request):
     id = get_id(request)
     if id is not None:
         try:
-            return JSONResponse(remote_devices.objects.all().filter(active=True,user=User.objects.get(id=id)).values('devices_name'))
+            return JSONResponse(remote_devices.objects.all().filter(active=True,user=User.objects.get(id=id)).values('devices_name'),Extra={"Succeess":True})
         except:
             return JSONResponse(None)
 
@@ -110,10 +110,10 @@ def json_get_song_info(request):
         host = request.GET['host']
         if host!=None:
             mus = music_info.objects.all().filter(destination_hostname=host,user=User.objects.get(id=id))
-            return JSONResponse(mus.values('artist','album','song','elapsed_time','total_time','is_playing'))
-        return JSONResponse(None)
+            return JSONResponse(mus.values('artist','album','song','elapsed_time','total_time','is_playing'),Extra={"Succeess":True})
+        return JSONResponse(Extra={"Succeess":False})
     else :
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 @csrf_exempt
 def json_set_song_info(request):
@@ -136,9 +136,9 @@ def json_set_song_info(request):
             obj.is_playing = is_playing
         obj.user=User.objects.get(id=id)
         obj.save()
-        return JSONResponse(None)
+        return JSONResponse(None,Extra={"Succeess":True})
     else :
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 @csrf_exempt
 def json_get_command(request):
@@ -147,12 +147,12 @@ def json_get_command(request):
         host = request.GET['host']
         if host!=None:
             command = command_queue.objects.all().filter(destination_hostname=host,user=User.objects.get(id=id))
-            retval = JSONResponse(command.values('command','command_text'))
+            retval = JSONResponse(command.values('command','command_text'),Extra={"Succeess":True})
             command.delete()
             return retval
-        return JSONResponse(None)
+        return JSONResponse(None,Extra={"Succeess":True})
     else :
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 @csrf_exempt
 def json_show_downloaded(request):
@@ -173,7 +173,7 @@ def json_show_downloaded(request):
     for host in remote_devices.objects.all().filter(active=True):
         cmd = command_queue(command='TMSG',command_text=ticker,source_hostname='FILE_SERVER',destination_hostname=host.devices_name,user=User.objects.get(id=host.user_id))
         cmd.save()
-    return JSONResponse(None)
+    return JSONResponse(None,Extra={"Succeess":True})
 
 @csrf_exempt
 def json_is_valid_show(request):
@@ -184,7 +184,7 @@ def json_is_valid_show(request):
         response['valid']=True
     except:
         response['valid']=False
-    return JSONResponse(response)
+    return JSONResponse(response,Extra={"Succeess":True})
 
 @csrf_exempt
 def json_get_episode_name(request):
@@ -196,14 +196,14 @@ def json_get_episode_name(request):
     try:
         e = eps_data.objects.get(show=tv_shows.objects.get(name=show_name),eps_number=eps_number)
         retval['name']=e.eps_name
-        return JSONResponse(retval)
+        return JSONResponse(retval,Extra={"Succeess":True})
     except:
         return JSONResponse(None)
 
 @csrf_exempt
 def json_get_active_shows(request):
     shows=tv_shows.objects.all().filter(active=1,download=True)
-    return JSONResponse(shows.values('id','name','url','last_update','show_type'))
+    return JSONResponse(shows.values('id','name','url','last_update','show_type'),Extra = {"success":True})
 
 @csrf_exempt
 def json_update_last_check(request):
@@ -212,7 +212,7 @@ def json_update_last_check(request):
     tv = tv_shows.objects.get(id=id)
     tv.last_checked = date
     tv.save()
-    return JSONResponse(None)
+    return JSONResponse(None,Extra={"Succeess":True})
 
 @csrf_exempt
 def json_update_last_update(request):
@@ -221,14 +221,14 @@ def json_update_last_update(request):
     tv = tv_shows.objects.get(id=id)
     tv.last_update = date
     tv.save()
-    return JSONResponse(None)
+    return JSONResponse(None,Extra={"Succeess":True})
 
 @csrf_exempt
 def json_authenticate(request):
     response = {}
     if request.user.is_authenticated():
         response['success'] = True
-        response['Message'] = 'User Already Authenticated'
+        response['message'] = 'User Already Authenticated'
     else:
         username = request.GET['username']
         password = request.GET['password']
@@ -236,31 +236,31 @@ def json_authenticate(request):
         if user is not None:
             if user.is_active:
                 response['success'] = True
-                response['Message'] = 'User Authenticated'
+                response['message'] = 'User Authenticated'
                 request.session['member_id'] = user.id
             else:
                 response['success'] = False
-                response['Message'] = 'User Account Disabled'
+                response['message'] = 'User Account Disabled'
         else:
             response['success'] = False
-            response['Message'] = 'Invalid Credentials'
-    return JSONResponse(response)
+            response['message'] = 'Invalid Credentials'
+    return JSONResponse(None,Extra=response)
 
 @csrf_exempt
 def json_deauthenticate(request):
     response = {}
     logout(request)
     response['success'] = True
-    return JSONResponse(response)
+    return JSONResponse(None,Extra=response)
 
 def json_get_upcoming_shows(request):
     now = datetime.now()
     id=get_id(request)
     if id != None:
         eps_list = eps_data.objects.filter(show__user_tv_shows__user=User.objects.get(id=id),air_date__gte=now)
-        return JSONResponse(eps_list.values('show__name','air_date','eps_name','eps_number'))
+        return JSONResponse(eps_list.values('show__name','air_date','eps_name','eps_number'),Extra={"Succeess":True})
     else:
-        return JSONResponse("Not Authorized")
+        return JSONResponse(None,Extra={"success":False,"message":"Not Authorized")
 
 
 def get_id(request):
