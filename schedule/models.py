@@ -21,7 +21,7 @@ class tv_shows_form(ModelForm):
     class Meta:
         model=tv_shows
 
-class eps_data(models.Model):
+class episode_data(models.Model):
     show = models.ForeignKey('tv_shows')
     air_date = models.DateTimeField("Show Air Date")
     eps_name = models.CharField("Episode Name",max_length=256)

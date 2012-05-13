@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import zipfile,urllib,os
 from xml.dom.minidom import parseString
-from main.models import eps_data,tv_shows
+from schedule.models import episode_data,tv_shows
 
 class updateEpsList():
     def __init__(self):

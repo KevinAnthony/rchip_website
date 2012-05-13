@@ -11,9 +11,9 @@
     <p class="today"> Yellow are shows in the next twenty-four hours</p>
     <p class="currentrow"> Blue are shows in the next seven days</p>
     <p class="futurerow"> Green are shows in the future</p>
-    <a class="pbutton" href="/main/update/">Update Shows</a>
+    <a class="pbutton" href="/schedule/update/">Update Shows</a>
     <p>
-      <form name = "selectshow" action = "/main/" method="post">
+      <form name = "selectshow" action = "/schedule/" method="post">
         <select name = "show" onchange="document.selectshow.submit()">
           <option value = ""></option>
           {% for s in show_list %}

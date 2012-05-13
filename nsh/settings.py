@@ -68,7 +68,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/var/www/nsh/main/static/',
+    '/var/www/nsh/schdule/static/',
     '/var/www/nsh/hack/static/',
     '/var/www/nsh/mile/static/',
     '/var/www/nsh/weight/static/',
@@ -127,10 +127,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'weight',
-    'main',
+    'schedule',
     'hack',
     'mile',
     'rchip',
+    'blog',
     'south',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',

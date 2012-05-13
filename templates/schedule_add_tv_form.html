@@ -19,7 +19,7 @@
   </script>
 {% endblock %}
 {% block content %}
-  <form id="form" name="form" method="post" action="/main/addshow/">
+  <form id="form" name="form" method="post" action="/schedule/addshow/">
     {% csrf_token %}
     {{ form.non_field_errors }}
     {{ form.name.errors }}<br>{{ form.name.label_tag }}: {{ form.name }}<br>

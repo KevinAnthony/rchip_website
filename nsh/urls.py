@@ -13,11 +13,11 @@ urlpatterns = patterns('',
 
     url(r'^hack/$','hack.views.index'),
 
-    url(r'^$','main.views.main_index'),
-    url(r'^main/$','main.views.main_index'),
-    url(r'^main/update/$','main.views.main_update'),
-    url(r'^main/tvshows/$','main.views.main_config_tv_shows'),
-    url(r'^main/addshow/$','main.views.main_add_tv_show'),
+    url(r'^$','schedule.views.schedule_index'),
+    url(r'^schedule/$','schedule.views.schedule_index'),
+    url(r'^schedule/update/$','schedule.views.schedule_update'),
+    url(r'^schedule/tvshows/$','schedule.views.schedule_config_tv_shows'),
+    url(r'^schedule/addshow/$','schedule.views.schedule_add_tv_show'),
 
     url(r'^json/getdaemons/','rchip.views.json_get_daemons'),
     url(r'^json/registerdaemon/','rchip.views.json_register_daemon'),
@@ -39,8 +39,8 @@ urlpatterns = patterns('',
     url(r'^json/getupcomingshows/','rchip.views.json_get_upcoming_shows'),
 
     url(r'^accounts/login/$','django.contrib.auth.views.login', {'template_name': 'templates/login.html', }),
-    url(r'^accounts/logout/$', 'main.views.logout_view'),
-    url(r'^accounts/register/$', 'main.views.register'),
+    url(r'^accounts/logout/$', 'schedule.views.logout_view'),
+    url(r'^accounts/register/$', 'schedule.views.register'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

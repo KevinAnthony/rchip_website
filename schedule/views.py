@@ -1,10 +1,10 @@
 from django.template import Context, loader, RequestContext
 from django import template,forms
-from main.models import eps_data,tv_shows,tv_shows_form,user_tv_shows
+from schedule.models import episode_data,tv_shows,tv_shows_form,user_tv_shows
 from django.http import HttpResponse,HttpResponseRedirect
 from django.shortcuts import render_to_response
 from datetime import datetime,timedelta
-from main.update import updateEpsList
+from schedule.update import updateEpsList
 from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.csrf import csrf_exempt, csrf_protect
@@ -15,7 +15,7 @@ from django.utils import timezone
 
 # Create your views here.
 @csrf_exempt
-def main_index(request):
+def schedule_index(request):
     now = datetime.utcnow().replace(tzinfo=timezone.utc)
     tda = now - timedelta(7)
     filterName = ""
@@ -23,21 +23,21 @@ def main_index(request):
         if request.method == 'POST':
             filterName = request.POST.get("show","")
             if filterName == "":
-                eps_list = eps_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
+                eps_list = episode_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
             else:
-                eps_list = eps_data.objects.filter(show__name=filterName,show__user_tv_shows__user=request.user).order_by('eps_number')
+                eps_list = episode_data.objects.filter(show__name=filterName,show__user_tv_shows__user=request.user).order_by('eps_number')
         else:
-            eps_list = eps_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
+            eps_list = episode_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
         show_list = tv_shows.objects.filter(show_type = "tvshow",active=1,user_tv_shows__user=request.user).order_by('name')
     else:
         if request.method == 'POST':
             filterName = request.POST.get("show","")
             if filterName == "":
-                eps_list = eps_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
+                eps_list = episode_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
             else:
-                eps_list = eps_data.objects.filter(show = tv_shows.objects.get(name=filterName)).order_by('eps_number')
+                eps_list = episode_data.objects.filter(show = tv_shows.objects.get(name=filterName)).order_by('eps_number')
         else:
-            eps_list = eps_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
+            eps_list = episode_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
         show_list = tv_shows.objects.filter(show_type = "tvshow",active=1).order_by('name')
     for e in eps_list:
         if e.air_date < (now - timedelta(hours=1)):
@@ -52,7 +52,7 @@ def main_index(request):
             e.css_markup = "currentrow"
         if e.downloaded:
             e.uri = e.uri.replace("/mnt/raid/","ftp://192.168.1.3/")
-    t = loader.get_template('templates/main_index.html')
+    t = loader.get_template('templates/schedule_index.html')
     future = now + timedelta(7)
     c = Context({
         'eps_list': eps_list,
@@ -62,9 +62,9 @@ def main_index(request):
     })
     return HttpResponse(t.render(c))
 
-def main_update(request):
+def schedule_update(request):
     updateEpsList().update()
-    return main_index(request)
+    return schedule_index(request)
 
 def logout_view(request):
     logout(request)
@@ -84,7 +84,7 @@ def register(request):
 
 @login_required
 @csrf_exempt
-def main_config_tv_shows(request):
+def schedule_config_tv_shows(request):
     tv_shows_list = tv_shows.objects.all()
     for show in tv_shows_list:
         if user_tv_shows.objects.filter(show=show, user=request.user):
@@ -114,12 +114,12 @@ def main_config_tv_shows(request):
                     user_tv_shows(show=show,user=request.user).save()
                 else:
                     user_tv_shows.objects.filter(show=show).delete()
-    t = loader.get_template('templates/main_tv_shows.html')
+    t = loader.get_template('templates/schedule_tv_shows.html')
     c = RequestContext(request,{'tv_show_list': tv_shows_list ,'user':request.user,})
     return HttpResponse(t.render(c))
 
 @login_required
-def main_add_tv_show(request):
+def schedule_add_tv_show(request):
     if request.method == 'POST':
         form = tv_shows_form(request.POST)
         if form.is_valid():
@@ -129,7 +129,7 @@ def main_add_tv_show(request):
                 raise ValidationError("Show %s already in Database" % (form.cleaned_data['name']))
     else:
         form = tv_shows_form()
-    t = loader.get_template('templates/main_add_tv_form.html')
+    t = loader.get_template('templates/schedule_add_tv_form.html')
     c = RequestContext(request,{"form":form})
     return HttpResponse(t.render(c))
 

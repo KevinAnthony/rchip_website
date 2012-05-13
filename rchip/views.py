@@ -1,6 +1,6 @@
 from response import JSONResponse
 from rchip.models import command_queue,daemon_register,message_register,music_info,remote_devices
-from main.models import eps_data,tv_shows,user_tv_shows
+from schedule.models import episode_data,tv_shows,user_tv_shows
 from django.contrib.auth.models import User
 from django.contrib.auth import logout,login,authenticate
 from django.contrib.auth.forms import UserCreationForm
@@ -162,7 +162,7 @@ def json_show_downloaded(request):
     if not is_anime:
         showName = file_name.split('.')[0].replace('_',' ')
         epsNumber = file_name.split('.')[1]
-        e = eps_data.objects.get(show=tv_shows.objects.get(name=showName),eps_number=epsNumber)
+        e = episode_data.objects.get(show=tv_shows.objects.get(name=showName),eps_number=epsNumber)
         e.downloaded = True
         e.uri = file_path
         e.save()
@@ -194,7 +194,7 @@ def json_get_episode_name(request):
     retval = {}
     eps_number = 'S%02dE%02d' %(season,episode)
     try:
-        e = eps_data.objects.get(show=tv_shows.objects.get(name=show_name),eps_number=eps_number)
+        e = episode_data.objects.get(show=tv_shows.objects.get(name=show_name),eps_number=eps_number)
         retval['name']=e.eps_name
         return JSONResponse(retval,Extra={"success":True})
     except:
@@ -257,7 +257,7 @@ def json_get_upcoming_shows(request):
     now = datetime.now()
     id=get_id(request)
     if id != None:
-        eps_list = eps_data.objects.filter(show__user_tv_shows__user=User.objects.get(id=id),air_date__gte=now)
+        eps_list = episode_data.objects.filter(show__user_tv_shows__user=User.objects.get(id=id),air_date__gte=now)
         return JSONResponse(eps_list.values('show__name','air_date','eps_name','eps_number'),Extra={"success":True})
     else:
         return JSONResponse(None,Extra={"success":False,"message":"Not Authorized"})

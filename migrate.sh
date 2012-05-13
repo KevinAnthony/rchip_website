@@ -1,5 +1,5 @@
 #!/bin/bash
-apps=(main weight mile rchip)
+apps=(main weight mile rchip schedule blog)
 for app in ${apps[@]}
   do
     ./manage.py schemamigration $app --auto
