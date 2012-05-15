@@ -20,7 +20,7 @@ class updateEpsList():
             xmldom = self.processFile(url)
             if xmldom == None:
                 continue
-            eps_data.objects.filter(show_id=tv_shows.objects.filter(name=showName),uri="").delete()
+            episode_data.objects.filter(show_id=tv_shows.objects.filter(name=showName),uri="").delete()
             for e in xmldom.getElementsByTagName("Episode"):
                 try:
                     epsName = e.getElementsByTagName("EpisodeName")[0].childNodes[0].nodeValue
@@ -40,7 +40,7 @@ class updateEpsList():
                     date = datetime.strptime("1970-01-01",'%Y-%m-%d')
                 date = date + timedelta(hours = air_time/100, minutes = air_time%100)
                 epsString = "S%02dE%02d"%(int(seasonNumber) if seasonNumber.isdigit() else 0,int(epsNumber) if epsNumber.isdigit() else 0)
-                obj, created = eps_data.objects.get_or_create(show = tv_shows.objects.get(name=showName), eps_number = epsString, defaults={'air_date':date,'eps_name':epsName})
+                obj, created = episode_data.objects.get_or_create(show = tv_shows.objects.get(name=showName), eps_number = epsString, defaults={'air_date':date,'eps_name':epsName})
                 if not created:
                     obj.show = tv_shows.objects.get(name=showName)
                     obj.eps_number = epsString
@@ -51,13 +51,13 @@ class updateEpsList():
                     obj.save()
         shows = tv_shows.objects.filter(active=1,show_type='tvshow')
         for show in shows:
-            eps = eps_data.objects.filter(show=show,air_date__gte=datetime.now()-timedelta(30))
+            eps = episode_data.objects.filter(show=show,air_date__gte=datetime.now()-timedelta(30))
             if len(eps) == 0:
                 show.active=0
                 show.save()
             shows = tv_shows.objects.filter(active=0,show_type='tvshow')
             for show in shows:
-                eps = eps_data.objects.filter(show=show,air_date__gte=datetime.now()-timedelta(30))
+                eps = episode_data.objects.filter(show=show,air_date__gte=datetime.now()-timedelta(30))
                 if len(eps) <> 0:
                     show.active=1
                 show.last_update=datetime.now()
