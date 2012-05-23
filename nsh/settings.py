@@ -131,7 +131,6 @@ INSTALLED_APPS = (
     'hack',
     'mile',
     'rchip',
-    'blog',
     'south',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
