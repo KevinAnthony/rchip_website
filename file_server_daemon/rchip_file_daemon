@@ -220,7 +220,6 @@ class msFileMover(threading.Thread):
                             url = "http://nosideholdings.com/json/isvalidshow/?show_name=%s" %(urllib.quote(showname.replace("_"," ")))
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
-                            print jsonSource
                             if not jsonSource['data']['valid']:
                                 logging.warning(url)
                                 logging.warning("No Show called :%s: or :%s:" % (orgShowName,showname))
@@ -230,16 +229,19 @@ class msFileMover(threading.Thread):
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
                             if jsonSource:
-                                epsName = jsonSource['data']['name'].title().replace(' ','_')
+                                if jsonSource['data']['name']:
+                                    epsName = jsonSource['data']['name'].title().replace(' ','_')
+                                else:
+                                    epsName = ""
                                 fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
                                 destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
                                 destName = os.path.join(destPath,fileName.replace('/',','))
                                 self.move (destPath,filepath,destName)
             except(KeyboardInterrupt):
                 logging.waring("KeyboardInterrupt from main Thread, exiting")
-            except:
-                e = sys.exc_info()[1]
-                logging.error("%s" % (e))
+            #except:
+            #    e = sys.exc_info()[1]
+            #   logging.error("%s" % (e))
             self._stopevent.wait(self._sleepPeriod)
     def join(self, timeout=None):
         logging.warning("Exiting Thread :%s" %(self.getName()))
