@@ -253,6 +253,10 @@ def json_deauthenticate(request):
     response['success'] = True
     return JSONResponse(None,Extra=response)
 
+@csrf_exempt
+def json_check_authentication(request):
+    return JSONResponse({"authenticated":request.user.is_authenticated()},Extra={"success":True})
+
 def json_get_upcoming_shows(request):
     now = datetime.now()
     id=get_id(request)

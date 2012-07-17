@@ -36,6 +36,7 @@ urlpatterns = patterns('',
     url(r'^json/updatelastupdate/','rchip.views.json_update_last_update'),
     url(r'^json/authenticate/','rchip.views.json_authenticate'),
     url(r'^json/deauthenticate/','rchip.views.json_deauthenticate'),
+    url(r'^json/checkauthentication/','rchip.views.json_check_authentication'),
     url(r'^json/getupcomingshows/','rchip.views.json_get_upcoming_shows'),
 
     url(r'^accounts/login/$','django.contrib.auth.views.login', {'template_name': 'templates/login.html', }),
