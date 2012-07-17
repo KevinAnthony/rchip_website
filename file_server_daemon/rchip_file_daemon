@@ -220,7 +220,8 @@ class msFileMover(threading.Thread):
                             url = "http://nosideholdings.com/json/isvalidshow/?show_name=%s" %(urllib.quote(showname.replace("_"," ")))
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
-                            if not jsonSource['valid']:
+                            print jsonSource
+                            if not jsonSource['data']['valid']:
                                 logging.warning(url)
                                 logging.warning("No Show called :%s: or :%s:" % (orgShowName,showname))
                                 orgShowName = ""
@@ -229,7 +230,7 @@ class msFileMover(threading.Thread):
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
                             if jsonSource:
-                                epsName = jsonSource['name'].title().replace(' ','_')
+                                epsName = jsonSource['data']['name'].title().replace(' ','_')
                                 fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
                                 destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
                                 destName = os.path.join(destPath,fileName.replace('/',','))
@@ -254,7 +255,7 @@ class msRssDownload(threading.Thread):
     def run(self):
         while not self._stopevent.isSet():
             socket.setdefaulttimeout(5)
-            url = "http://www.nosideholdings.com/json/getactiveshows"
+            url = "http://www.nosideholdings.com/json/getactiveshows/"
             try:
                 htmlSource = requests.get(url).content
             except:
