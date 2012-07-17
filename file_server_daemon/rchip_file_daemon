@@ -254,14 +254,16 @@ class msRssDownload(threading.Thread):
     def run(self):
         while not self._stopevent.isSet():
             socket.setdefaulttimeout(5)
-            url = "http://www.nosideholdings.com/json/getactiveshows/"
+            url = "http://www.nosideholdings.com/json/getactiveshows"
             try:
                 htmlSource = requests.get(url).content
             except:
                 #TODO print error
                 continue
             rs = []
-            for jsonSource in json.loads(htmlSource):
+            jsonRaw = json.loads(htmlSource)
+            jsonSourceList = jsonRaw['data']
+            for jsonSource in jsonSourceList:
                 if self._stopevent.isSet():
                     break
                 id = jsonSource['id']
