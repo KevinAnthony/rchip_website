@@ -67,7 +67,7 @@ class msFileMover(threading.Thread):
                 groupname = result[1]
                 if groupname == "yibis":
                     checkSum = result[5]
-                    quality = result[4]
+                    quality = result[3]
                 else:
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
@@ -108,10 +108,19 @@ class msFileMover(threading.Thread):
             e = sys.exc_info()[1]
             logging.error("%s" % (e))
             return (inname,fname)
-        if quality <> None:
-                newFileName = "%s_[%s]_[%s]%s.%s"% (eps_information,groupname,checkSum,quality,ext)
+        temp = eps_information.split('_')
+        show_name = "_".join(temp[:-1])
+        eps_number = temp[-1:][0]
+        if quality is not None :
+            try:
+                newFileName = "%s.%03d.%s.%s.%s.%s"% (show_name,int(eps_number),groupname,checkSum,quality,ext)
+            except:
+                newFileName = "%s.%s.%s.%s.%s.%s"% (show_name,eps_number,groupname,checkSum,quality,ext)
         else:
-                newFileName = "%s_[%s]_[%s].%s"% (eps_information,groupname,checkSum,ext)
+            try:
+                newFileName = "%s.%03d.%s.%s.%s"% (show_name,int(eps_number),groupname,checkSum,ext)
+            except:
+                newFileName = "%s.%s.%s.%s.%s"% (show_name,eps_number,groupname,checkSum,ext)
         nFilePath = os.path.join(self._base_path_Anime,folder,newFileName.replace("_-_",'_'))
         destPath = os.path.join(self._base_path_Anime,folder)
         return (nFilePath,destPath)
