@@ -31,19 +31,6 @@ class msFileMover(threading.Thread):
         logging.info(url)
         self.session.get(url)
 
-    def exceptions(self,inname):
-        if inname == "Castle_2009":
-            outname = "Castle"
-        elif inname == "Hawaii_Five-0_2010":
-            outname = "Hawaii_Five-0"
-        elif inname == "Human_Target_2010" :
-            outname = "Human_Target"
-        elif inname == "The_Cape_2011" :
-            outname = "The_Cape"
-        else:
-            outname=inname
-        return outname
-
     def anime(self,inname):
         if len(re.split("One_Piece",inname)) > 1:
             return True
@@ -110,6 +97,8 @@ class msFileMover(threading.Thread):
             return (inname,fname)
         temp = eps_information.split('_')
         show_name = "_".join(temp[:-1])
+        show_name = show_name.rstrip(' _-:')
+        group_name = groupname.rstrip(' _-:')
         eps_number = temp[-1:][0]
         if quality is not None :
             try:
