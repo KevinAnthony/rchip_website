@@ -11,7 +11,7 @@ class updateEpsList():
         self.baseurl = 'http://www.thetvdb.com/api/%s/series'%(self.apikey)
 
     def update(self):
-        tz = timezone('US/Eastern')
+        tz = timezone('UTC')
         for list in self.showList:
             seriesID = list.thetvdb_id
             showName = list.name
@@ -40,7 +40,7 @@ class updateEpsList():
                     date = datetime.strptime(e.getElementsByTagName("FirstAired")[0].childNodes[0].nodeValue, '%Y-%m-%d')
                 except:
                     date = datetime.strptime("1970-01-01",'%Y-%m-%d')
-                date = date.replace(tzinfo=tz)
+                date = date.replace(tzinfo=tz,hour = 0)
                 epsString = "S%02dE%02d"%(int(seasonNumber) if seasonNumber.isdigit() else 0,int(epsNumber) if epsNumber.isdigit() else 0)
                 obj, created = episode_data.objects.get_or_create(show = tv_shows.objects.get(name=showName), eps_number = epsString, defaults={'air_date':date,'eps_name':epsName})
                 if not created:

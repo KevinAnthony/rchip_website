@@ -42,7 +42,7 @@
           <td>{{ e.show.name }}</td>
           <td>{{ e.eps_number }}</td>
           <td>{{ e.eps_name }}</td>
-          <td>{{ e.air_date|date:"l"}}, {{e.air_date|date:"F j Y" }} at {{e.air_date|date:"g"}}:{{e.air_date|date:"ia" }}</td>
+          <td>{{ e.air_date|date:"l"}}, {{e.air_date|date:"F j Y" }} at {{e.air_date|date:"g"}}:{{e.air_date|date:"ia" }} </td>
           {% if e.downloaded %}
             <td><a href="{{e.uri}}">
             <img src="{% get_static_prefix %}img/download.png" width="25" height="25" /></a>

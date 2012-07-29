@@ -12,12 +12,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.context_processors import csrf
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from pytz import timezone as pytimezone
 import pytz
 # Create your views here.
 @csrf_exempt
 def schedule_index(request):
-    timezone.activate(pytz.timezone('US/Eastern'))
-    now = timezone.now()
+    now = datetime.now(pytimezone('US/Eastern'))
     tda = now - timedelta(7)
     filterName = ""
     if request.user.is_authenticated():
@@ -42,9 +42,11 @@ def schedule_index(request):
         show_list = tv_shows.objects.filter(show_type = "tvshow",active=1).order_by('name')
     for e in eps_list:
         show = tv_shows.objects.get(id = e.show_id)
-        offset = int(datetime.now(pytz.timezone('US/Eastern')).strftime("%z"))*-1
-        show.air_time = show.air_time+offset
-        e.air_date = e.air_date + timedelta(hours = show.air_time/100, minutes = show.air_time%100) 
+        e.air_date = e.air_date.replace(tzinfo=pytimezone('US/Eastern'))
+        air_time = show.air_time
+        offset = int(now.strftime("%z"))
+        air_time += offset
+        e.air_date = e.air_date + timedelta(hours = air_time/100, minutes = air_time%100) 
         if e.air_date < (now - timedelta(hours=1)):
             e.css_markup = "oldrow"
         elif e.air_date < now:
