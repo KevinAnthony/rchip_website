@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import zipfile,urllib,os
 from xml.dom.minidom import parseString
 from schedule.models import episode_data,tv_shows
+from pytz import timezone
 
 class updateEpsList():
     def __init__(self):
@@ -10,6 +11,7 @@ class updateEpsList():
         self.baseurl = 'http://www.thetvdb.com/api/%s/series'%(self.apikey)
 
     def update(self):
+        tz = timezone('US/Eastern')
         for list in self.showList:
             seriesID = list.thetvdb_id
             showName = list.name
@@ -38,7 +40,7 @@ class updateEpsList():
                     date = datetime.strptime(e.getElementsByTagName("FirstAired")[0].childNodes[0].nodeValue, '%Y-%m-%d')
                 except:
                     date = datetime.strptime("1970-01-01",'%Y-%m-%d')
-                date = date + timedelta(hours = air_time/100, minutes = air_time%100)
+                date = date.replace(tzinfo=tz)
                 epsString = "S%02dE%02d"%(int(seasonNumber) if seasonNumber.isdigit() else 0,int(epsNumber) if epsNumber.isdigit() else 0)
                 obj, created = episode_data.objects.get_or_create(show = tv_shows.objects.get(name=showName), eps_number = epsString, defaults={'air_date':date,'eps_name':epsName})
                 if not created:
@@ -51,16 +53,16 @@ class updateEpsList():
                     obj.save()
         shows = tv_shows.objects.filter(active=1,show_type='tvshow')
         for show in shows:
-            eps = episode_data.objects.filter(show=show,air_date__gte=datetime.now()-timedelta(30))
+            eps = episode_data.objects.filter(show=show,air_date__gte=datetime.now(tz)-timedelta(30))
             if len(eps) == 0:
                 show.active=0
                 show.save()
             shows = tv_shows.objects.filter(active=0,show_type='tvshow')
             for show in shows:
-                eps = episode_data.objects.filter(show=show,air_date__gte=datetime.now()-timedelta(30))
+                eps = episode_data.objects.filter(show=show,air_date__gte=datetime.now(tz)-timedelta(30))
                 if len(eps) <> 0:
                     show.active=1
-                show.last_update=datetime.now()
+                show.last_update=datetime.now(tz)
                 show.save()
 
     def processFile(self,url):
