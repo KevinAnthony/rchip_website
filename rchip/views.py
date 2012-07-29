@@ -262,7 +262,7 @@ def json_get_upcoming_shows(request):
     id=get_id(request)
     if id != None:
         eps_list = episode_data.objects.filter(show__user_tv_shows__user=User.objects.get(id=id),air_date__gte=now)
-        return JSONResponse(eps_list.values('show__name','air_date','eps_name','eps_number'),Extra={"success":True})
+        return JSONResponse(eps_list.values('show__name','air_date','eps_name','eps_number','show__air_time'),Extra={"success":True})
     else:
         return JSONResponse(None,Extra={"success":False,"message":"Not Authorized"})
 
