@@ -17,6 +17,7 @@ import pytz
 # Create your views here.
 @csrf_exempt
 def schedule_index(request):
+    #TODO this needs to be gotten, not hardcoded
     now = datetime.now(pytimezone('US/Eastern'))
     tda = now - timedelta(7)
     filterName = ""
@@ -41,12 +42,9 @@ def schedule_index(request):
             eps_list = episode_data.objects.filter(air_date__gte=tda).order_by('air_date','eps_number')
         show_list = tv_shows.objects.filter(show_type = "tvshow",active=1).order_by('name')
     for e in eps_list:
-        show = tv_shows.objects.get(id = e.show_id)
-        e.air_date = e.air_date.replace(tzinfo=pytimezone('US/Eastern'))
-        air_time = show.air_time
-        offset = int(now.strftime("%z"))
-        air_time += offset
-        e.air_date = e.air_date + timedelta(hours = air_time/100, minutes = air_time%100) 
+        air_time = tv_shows.objects.get(id = e.show_id).air_time + int(now.strftime("%z"))
+        e.air_date = e.air_date.replace (hour = (air_time/100), minute=air_time%100)
+        e.air_date_string = e.air_date.strftime("%A, %B %d %Y at %I:%M %p")
         if e.air_date < (now - timedelta(hours=1)):
             e.css_markup = "oldrow"
         elif e.air_date < now:
