@@ -25,11 +25,11 @@ def schedule_index(request):
         if request.method == 'POST':
             filterName = request.POST.get("show","")
             if filterName == "":
-                eps_list = episode_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
+                eps_list = episode_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','show__air_time','eps_number')
             else:
                 eps_list = episode_data.objects.filter(show__name=filterName,show__user_tv_shows__user=request.user).order_by('eps_number')
         else:
-            eps_list = episode_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','eps_number')
+            eps_list = episode_data.objects.filter(show__user_tv_shows__user=request.user,air_date__gte=tda).order_by('air_date','show__air_time','eps_number')
         show_list = tv_shows.objects.filter(show_type = "tvshow",active=1,user_tv_shows__user=request.user).order_by('name')
     else:
         if request.method == 'POST':
