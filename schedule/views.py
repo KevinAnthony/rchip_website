@@ -43,7 +43,7 @@ def schedule_index(request):
         show_list = tv_shows.objects.filter(show_type = "tvshow",active=1).order_by('name')
     for e in eps_list:
         air_time = tv_shows.objects.get(id = e.show_id).air_time + int(now.strftime("%z"))
-        e.air_date = e.air_date.replace (hour = (air_time/100), minute=air_time%100)
+        e.air_date = e.air_date.replace (hour = (air_time/100), minute=air_time%100,tzinfo=now.tzinfo)
         e.air_date_string = e.air_date.strftime("%A, %B %d %Y at %I:%M %p")
         if e.air_date < (now - timedelta(hours=1)):
             e.css_markup = "oldrow"
