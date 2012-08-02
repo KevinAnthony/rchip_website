@@ -194,8 +194,9 @@ def json_get_episode_name(request):
     retval = {}
     eps_number = 'S%02dE%02d' %(season,episode)
     try:
-        e = episode_data.objects.get(show=tv_shows.objects.get(name=show_name),eps_number=eps_number)
+        e = episode_data.objects.get(show__name=show_name,eps_number=eps_number)
         retval['name']=e.eps_name
+        retval['type']=e.show.show_type
         return JSONResponse(retval,Extra={"success":True})
     except:
         return JSONResponse(None)
