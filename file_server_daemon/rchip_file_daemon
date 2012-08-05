@@ -289,10 +289,20 @@ class msRssDownload(threading.Thread):
                             f.close()
                             downloaded_something = True
                 if downloaded_something:
-                    url = "http://www.nosideholdings.com/json/updatelastupdate/?id=%s&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
-                    requests.get(url)
-                url = "http://www.nosideholdings.com/json/updatelastcheck/?id=%i&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
-                requests.get(url)
+                    while not self._stopevent.isSet():            
+                        try:
+                            url = "http://www.nosideholdings.com/json/updatelastupdate/?id=%s&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                            requests.get(url)
+                            break
+                        except:
+                            pass
+                while not self._stopevent.isSet():            
+                    try:
+                        url = "http://www.nosideholdings.com/json/updatelastcheck/?id=%i&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                        requests.get(url)
+                        break
+                    except:
+                        pass
                 self._stopevent.wait(self._sleepPeriod)
             if self._sleepPeriod == .25:
                 self._sleepPeriod = 5.0
