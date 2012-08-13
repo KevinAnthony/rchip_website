@@ -38,6 +38,10 @@ class msFileMover(threading.Thread):
             return True
         if len(re.split("Hunter_X_Hunter",inname)) > 1:
             return True
+        if len(re.split("Sword_Art_Online",inname)) > 1:
+            return True
+        if len(re.split("So,_I_Can't_Play_H",inname)) > 1:
+            return True
         return False
 
     def anime_exceptions(self,inname,fname):
@@ -64,29 +68,24 @@ class msFileMover(threading.Thread):
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "Fairy_Tail"
-            if len(re.split("Gintama",inname)) > 1:
-                groupname = result[1]
-                if groupname == "Rumbel":
-                    checkSum = result[5]
-                else:
-                    checkSum = result[5]
-                eps_information = result[2][1:]
-                folder = "Gintama"
-            if len(re.split("C_The_Money_of_Soul_and_Possibility_Control",inname)) > 1:
-                groupname = result[1]
-                logging.info(result)
-                if groupname == "gg":
-                    checkSum = result[3]
-                else:
-                    checkSum = result[3]
-                eps_information = result[2][1:-1]
-                folder = "C_The_Money_of_Soul_and_possibility_Control"
             if len(re.split("Hunter_X_Hunter",inname)) > 1:
                 groupname = result[1]
                 if groupname == "HorribleSubs":
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "Hunter_X_Hunter"
+            if len(re.split("Sword_Art_Online",inname)) > 1:
+                groupname = result[1]
+                if groupname == "HorribleSubs":
+                    checkSum = result[3]
+                eps_information = result[2][1:-1]
+                folder = "Sword_Art_Online"
+            if len(re.split("So,_I_Can't_Play_H",inname)) > 1:
+                groupname = result[1]
+                if groupname == "HorribleSubs":
+                    checkSum = result[3]
+                eps_information = result[2][1:-1]
+                folder = "So__I Can_t_Play_H"
         except:
             e = sys.exc_info()[1]
             logging.error("%s" % (e))
@@ -274,20 +273,24 @@ class msRssDownload(threading.Thread):
                 last_downloaded_dt=datetime.datetime(*time.strptime(jsonSource['last_update'][:-6],"%Y-%m-%d %H:%M:%S")[:6])
                 show_type=jsonSource['show_type']
                 logging.info("Checking on show %s" %(show_name))
-                logging.debug("from url %s" %(url))
-                feed = feedparser.parse(url)
-                for e in feed['entries']:
-                    rss_update_dt = datetime.datetime.fromtimestamp(time.mktime(e['updated_parsed']))
-                    torrent_link = e['link']
-                    if last_downloaded_dt < rss_update_dt:
-                        file_name = "%s_%s.torrent"%(show_name.replace(' ','_'),rss_update_dt.strftime("%Y%m%d%H%M%S"))
-                        logging.info( "getting torrent for %s from %s" %(show_name,file_name))
-                        r = requests.get(torrent_link)
-                        if r.status_code == requests.codes.ok:
-                            f = open('/torrents/'+file_name, 'w')
-                            f.write(r.content)
-                            f.close()
-                            downloaded_something = True
+                try:
+                    logging.debug("from url %s" %(url))
+                    feed = feedparser.parse(url)
+                    for e in feed['entries']:
+                        rss_update_dt = datetime.datetime.fromtimestamp(time.mktime(e['updated_parsed']))
+                        torrent_link = e['link']
+                        if last_downloaded_dt < rss_update_dt:
+                            file_name = "%s_%s.torrent"%(show_name.replace(' ','_'),rss_update_dt.strftime("%Y%m%d%H%M%S"))
+                            logging.info( "getting torrent for %s from %s" %(show_name,file_name))
+                            r = requests.get(torrent_link)
+                            if r.status_code == requests.codes.ok:
+                                f = open('/torrents/'+file_name, 'w')
+                                f.write(r.content)
+                                f.close()
+                                downloaded_something = True
+                except:
+                    #TODO Print error message here
+                    pass
                 if downloaded_something:
                     while not self._stopevent.isSet():            
                         try:
