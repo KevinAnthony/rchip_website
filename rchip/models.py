@@ -29,7 +29,6 @@ class music_info(models.Model):
     artist = models.CharField(max_length=255)
     album = models.CharField(max_length=255)
     song = models.CharField(max_length=255)
-    elapsed_time =models.PositiveSmallIntegerField()
     total_time = models.PositiveSmallIntegerField()
     is_playing = models.BooleanField()
     destination_hostname = models.CharField(max_length=255,unique=True)

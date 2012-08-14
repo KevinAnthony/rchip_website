@@ -110,7 +110,7 @@ def json_get_song_info(request):
         host = request.GET['host']
         if host!=None:
             mus = music_info.objects.all().filter(destination_hostname=host,user=User.objects.get(id=id))
-            return JSONResponse(mus.values('artist','album','song','elapsed_time','total_time','is_playing'),Extra={"success":True})
+            return JSONResponse(mus.values('artist','album','song','total_time','is_playing'),Extra={"success":True})
         return JSONResponse(Extra={"success":False})
     else :
         return JSONResponse(None,Extra={"success":False,"message":"Not Authorized"})
@@ -122,16 +122,14 @@ def json_set_song_info(request):
         artist = request.GET['artist']
         album = request.GET['album']
         song = request.GET['song']
-        e_time = request.GET['elapsed_time']
         t_time = request.GET['total_time']
         is_playing = request.GET['is_playing']
         d_hostname = request.GET['dest_hostname']
-        obj, created = music_info.objects.get_or_create(destination_hostname=d_hostname, defaults={'artist':artist,'album':album,'song':song,'elapsed_time':e_time,'total_time':t_time,'is_playing':is_playing},user=User.objects.get(id=id))
+        obj, created = music_info.objects.get_or_create(destination_hostname=d_hostname, defaults={'artist':artist,'album':album,'song':song,'total_time':t_time,'is_playing':is_playing},user=User.objects.get(id=id))
         if not created:
             obj.artist = artist
             obj.album = artist
             obj.song = song
-            obj.elapsed_time = e_time
             obj.total_time = t_time
             obj.is_playing = is_playing
         obj.user=User.objects.get(id=id)
