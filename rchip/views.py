@@ -123,7 +123,7 @@ def json_set_song_info(request):
         album = request.GET['album']
         song = request.GET['song']
         t_time = request.GET['total_time']
-        is_playing = request.GET['is_playing']
+        is_playing = True if request.GET['is_playing'] == 1 else False
         d_hostname = request.GET['dest_hostname']
         obj, created = music_info.objects.get_or_create(destination_hostname=d_hostname, defaults={'artist':artist,'album':album,'song':song,'total_time':t_time,'is_playing':is_playing},user=User.objects.get(id=id))
         if not created:
