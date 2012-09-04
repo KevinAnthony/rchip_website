@@ -210,7 +210,7 @@ class msFileMover(threading.Thread):
                                 (destName,destPath)=self.anime_exceptions(showname,fname)
                                 self.move(destPath,filepath,destName)
                                 continue
-                            url = "http://nosideholdings.com/json/isvalidshow/?show_name=%s" %(urllib.quote(showname.replace("_"," ")))
+                            url = "http://www.nosideholdings.com/json/isvalidshow/?show_name=%s" %(urllib.quote(showname.replace("_"," ")))
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
                             if not jsonSource['data']['valid']:
@@ -218,7 +218,7 @@ class msFileMover(threading.Thread):
                                 logging.warning("No Show called :%s: or :%s:" % (orgShowName,showname))
                                 orgShowName = ""
                                 continue
-                            url = "http://nosideholdings.com/json/getepisodename/?show_name=%s&season=%s&episode=%s" %(urllib.quote(showname.replace("_"," ")),urllib.quote(seasonNumber),urllib.quote(epsNumber))
+                            url = "http://www.nosideholdings.com/json/getepisodename/?show_name=%s&season=%s&episode=%s" %(urllib.quote(showname.replace("_"," ")),urllib.quote(seasonNumber),urllib.quote(epsNumber))
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
                             if jsonSource:
