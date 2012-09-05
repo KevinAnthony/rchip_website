@@ -12,9 +12,9 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'madSci',                      # Or path to database file if using sqlite3.
-        'USER': 'nTesla',                      # Not used with sqlite3.
-        'PASSWORD': 'deathray',                  # Not used with sqlite3.
+        'NAME': 'gigaroc',                      # Or path to database file if using sqlite3.
+        'USER': 'gigaroc',                      # Not used with sqlite3.
+        'PASSWORD': '1qazxsw2',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
@@ -57,7 +57,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = '/var/www/nsh/static'
+STATIC_ROOT = '/home/gigaroc/webapps/rchip_static/'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -68,10 +68,10 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/var/www/nsh/schdule/static/',
-    '/var/www/nsh/hack/static/',
-    '/var/www/nsh/mile/static/',
-    '/var/www/nsh/weight/static/',
+    '/home/gigaroc/webapps/django/rchip_website/schedule/static/',
+    '/home/gigaroc/webapps/django/rchip_website/hack/static/',
+    '/home/gigaroc/webapps/django/rchip_website/mile/static/',
+    '/home/gigaroc/webapps/django/rchip_website/weight/static/',
 )
 
 # List of finder classes that know how to find static files in
@@ -113,7 +113,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '/var/www/nsh',
+    '/home/gigaroc/webapps/django/rchip_website/',
 )
 
 INSTALLED_APPS = (
