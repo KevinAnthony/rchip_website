@@ -3,12 +3,15 @@ import zipfile,urllib,os
 from xml.dom.minidom import parseString
 from schedule.models import episode_data,tv_shows
 from pytz import timezone
+import logging
+from django.conf import settings
 
 class updateEpsList():
     def __init__(self):
         self.showList = tv_shows.objects.filter(show_type='tvshow')
         self.apikey = '28CDD1E77B852D89'
         self.baseurl = 'http://www.thetvdb.com/api/%s/series'%(self.apikey)
+	self.logger = logging.getLogger(__name__)
 
     def update(self):
         tz = timezone('UTC')
@@ -19,6 +22,7 @@ class updateEpsList():
             if air_time == None:
                 air_time = 0
             url = "%s/%s/all/en.zip" % (self.baseurl,seriesID)
+            logging.debug("Processing files for show: %s" %(showName))
             xmldom = self.processFile(url)
             if xmldom == None:
                 continue
@@ -66,17 +70,22 @@ class updateEpsList():
                 show.save()
 
     def processFile(self,url):
-        try:
-            urllib.urlretrieve(url,"/var/www/nsh/en.zip")
-            file = zipfile.ZipFile("/var/www/nsh/en.zip", "r")
+        #try:
+            file_uri = '/home/gigaroc/webapps/django/rchip_website/en.zip'
+            urllib.urlretrieve(url,file_uri)
+            file = zipfile.ZipFile(file_uri, "r")
             for name in file.namelist():
                 if name == 'en.xml':
                     data = file.read(name)
                     xml = parseString(data)
-            os.unlink("/var/www/nsh/en.zip")
+                else:
+                    logging.debug("No en.xml file")
+            os.unlink(file_uri)
             return xml
-        except Exception,e:
-            return None
+        #except Exception as e:
+        #    logging.warning("Problem with process file")
+        #    logging.warning("{0} : {1}".format(e.errno,e.strerror))
+        #    return None
 
 if __name__ == "__main__":
     up = updateEpsList()
