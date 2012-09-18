@@ -261,7 +261,10 @@ class msRssDownload(threading.Thread):
                 #TODO print error
                 continue
             rs = []
-            jsonRaw = json.loads(htmlSource)
+            try:
+                jsonRaw = json.loads(htmlSource)
+            except:
+                continue
             jsonSourceList = jsonRaw['data']
             for jsonSource in jsonSourceList:
                 if self._stopevent.isSet():
