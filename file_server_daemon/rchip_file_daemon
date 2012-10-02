@@ -2,11 +2,10 @@
 
 import feedparser
 import logging
-import logging.handlers
-import threading,socket
-import os ,re, sys,time
+import threading, socket
+import os , re, sys, time
 import shutil
-import time,datetime,string
+import datetime
 import urllib
 import json
 import requests
@@ -26,31 +25,30 @@ class msFileMover(threading.Thread):
     def __del__(self):
         self.session.get('http://www.nosideholdings.com/json/deauthenticate/')
 
-    def updatedb(self,name,path):
-        url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s&anime=%s" % (urllib.quote(name),self.anime(name))
+    def updatedb(self, name, path):
+        url = "http://www.nosideholdings.com/json/showdownloaded/?file_path=%s&anime=%s" % (urllib.quote(name), self.anime(name))
         logging.info(url)
         self.session.get(url)
 
-    def anime(self,inname):
-        if len(re.split("One_Piece",inname)) > 1:
+    def anime(self, inname):
+        if len(re.split("One_Piece", inname)) > 1:
             return True
-        if len(re.split("Fairy_Tail",inname)) > 1:
+        if len(re.split("Fairy_Tail", inname)) > 1:
             return True
-        if len(re.split("Hunter_X_Hunter",inname)) > 1:
+        if len(re.split("Hunter_X_Hunter", inname)) > 1:
             return True
-        if len(re.split("Sword_Art_Online",inname)) > 1:
+        if len(re.split("Sword_Art_Online", inname)) > 1:
             return True
-        if len(re.split("So,_I_Can't_Play_H",inname)) > 1:
+        if len(re.split("So,_I_Can't_Play_H", inname)) > 1:
             return True
         return False
 
-    def anime_exceptions(self,inname,fname):
-        filepath=fname
+    def anime_exceptions(self, inname, fname):
         quality = None
-        result = re.split("\[|\]",fname)
-        ext=fname[-3:]
+        result = re.split("\[|\]", fname)
+        ext = fname[-3:]
         try:
-            if len(re.split("One_Piece",inname)) > 1:
+            if len(re.split("One_Piece", inname)) > 1:
                 groupname = result[1]
                 if groupname == "yibis":
                     checkSum = result[5]
@@ -59,7 +57,7 @@ class msFileMover(threading.Thread):
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "One_Piece"
-            if len(re.split("Fairy_Tail",inname)) > 1:
+            if len(re.split("Fairy_Tail", inname)) > 1:
                 groupname = result[1]
                 if groupname == "Ryugan":
                     checkSum = result[5]
@@ -68,19 +66,19 @@ class msFileMover(threading.Thread):
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "Fairy_Tail"
-            if len(re.split("Hunter_X_Hunter",inname)) > 1:
+            if len(re.split("Hunter_X_Hunter", inname)) > 1:
                 groupname = result[1]
                 if groupname == "HorribleSubs":
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "Hunter_X_Hunter"
-            if len(re.split("Sword_Art_Online",inname)) > 1:
+            if len(re.split("Sword_Art_Online", inname)) > 1:
                 groupname = result[1]
                 if groupname == "HorribleSubs":
                     checkSum = result[3]
                 eps_information = result[2][1:-1]
                 folder = "Sword_Art_Online"
-            if len(re.split("So,_I_Can't_Play_H",inname)) > 1:
+            if len(re.split("So,_I_Can't_Play_H", inname)) > 1:
                 groupname = result[1]
                 if groupname == "HorribleSubs":
                     checkSum = result[3]
@@ -89,159 +87,168 @@ class msFileMover(threading.Thread):
         except:
             e = sys.exc_info()[1]
             logging.error("%s" % (e))
-            return (inname,fname)
+            return (inname, fname)
         temp = eps_information.split('_')
         show_name = "_".join(temp[:-1])
         show_name = show_name.rstrip(' _-:')
-        group_name = groupname.rstrip(' _-:')
         eps_number = temp[-1:][0]
         if quality is not None :
             try:
-                newFileName = "%s.%03d.%s.%s.%s.%s"% (show_name,int(eps_number),groupname,checkSum,quality,ext)
+                newFileName = "%s.%03d.%s.%s.%s.%s" % (show_name, int(eps_number), groupname, checkSum, quality, ext)
             except:
-                newFileName = "%s.%s.%s.%s.%s.%s"% (show_name,eps_number,groupname,checkSum,quality,ext)
+                newFileName = "%s.%s.%s.%s.%s.%s" % (show_name, eps_number, groupname, checkSum, quality, ext)
         else:
             try:
-                newFileName = "%s.%03d.%s.%s.%s"% (show_name,int(eps_number),groupname,checkSum,ext)
+                newFileName = "%s.%03d.%s.%s.%s" % (show_name, int(eps_number), groupname, checkSum, ext)
             except:
-                newFileName = "%s.%s.%s.%s.%s"% (show_name,eps_number,groupname,checkSum,ext)
-        nFilePath = os.path.join(self._base_path_Anime,folder,newFileName.replace("_-_",'_'))
-        destPath = os.path.join(self._base_path_Anime,folder)
-        return (nFilePath,destPath)
+                newFileName = "%s.%s.%s.%s.%s" % (show_name, eps_number, groupname, checkSum, ext)
+        nFilePath = os.path.join(self._base_path_Anime, folder, newFileName.replace("_-_", '_'))
+        destPath = os.path.join(self._base_path_Anime, folder)
+        return (nFilePath, destPath)
 
-    def move(self,destPath,filepath,destName):
-        from datetime import datetime
-        logging.info("Moving %s to %s" % (filepath,destName))
-        if os.path.exists(destPath) == False:
-            os.makedirs(destPath)
-            os.chmod(destPath,0777)
-            os.chown(destPath,65534,65534)
-        shutil.move(filepath,destName)
-        os.chmod(destName,0777)
-        os.chown(destName,65534,65534)
-        self.updatedb(destName,destPath)
+    def move(self, destination_folder_path, source_file_path, desitination_file_name_with_path):
+        new_file_bigger = True
+        new_file_size = os.stat(source_file_path).st_size
+        file_without_ext = desitination_file_name_with_path[:-4]
+        for ext in ('avi', 'mp4', 'mkv'):
+            check_path = "%s.%s" % (file_without_ext, ext)
+            if os.path.exists(check_path):
+                if new_file_size > os.stat(check_path).st_size:
+                    os.unlink(check_path)
+                else:
+                    os.unlink(source_file_path)
+                    new_file_bigger = False
+        if new_file_bigger:
+            logging.info("Moving %s to %s" % (source_file_path, desitination_file_name_with_path))
+            if os.path.exists(destination_folder_path) == False:
+                os.makedirs(destination_folder_path)
+                os.chmod(destination_folder_path, 0777)
+                os.chown(destination_folder_path, 65534, 65534)
+                shutil.move(source_file_path, desitination_file_name_with_path)
+                os.chmod(desitination_file_name_with_path, 0777)
+                os.chown(desitination_file_name_with_path, 65534, 65534)
+                self.updatedb(desitination_file_name_with_path, destination_folder_path)
 
-    def removeSpace(self,file=None,dir=None,char='_'):
-        if file <> None:
-            if os.path.isfile(file):
-                self.removeSpaceFile(file,char)
+    def removeSpace(self, file_name = None, dir_name = None, char = '_'):
+        if file_name <> None:
+            if os.path.isfile(file_name):
+                self.removeSpaceFile(file_name, char)
             else:
-                raise NameError('%s is not a file'%(file))
-        elif dir <> None:
-            if os.path.isdir(dir):
-                self.removeSpaceDir(dir,char)
+                raise NameError('%s is not a file' % (file))
+        elif dir_name <> None:
+            if os.path.isdir(dir_name):
+                self.removeSpaceDir(dir_name, char)
             else:
-                raise NameError('%s is not a Directory'%(dir))
+                raise NameError('%s is not a Directory' % (dir))
         else:
             raise NameError('Both File and Dir are None')
         return
 
-    def removeSpaceDir(self,dir,char):
-        for file in os.listdir(dir):
-            fname = os.path.join(dir,file)
+    def removeSpaceDir(self, dir_name, char):
+        for file_name in os.listdir(dir_name):
+            fname = os.path.join(dir_name, file_name)
             if os.path.isfile(fname):
-                self.removeSpaceFile(fname,char)
+                self.removeSpaceFile(fname, char)
 
-    def removeSpaceFile(self,file,char):
-        oldFileName = file
-        newFileName = file.replace(' ',char)
-        shutil.move(oldFileName,newFileName)
+    def removeSpaceFile(self, file_name, char):
+        oldFileName = file_name
+        newFileName = file_name.replace(' ', char)
+        shutil.move(oldFileName, newFileName)
 
-    def run( self ):
+    def run(self):
         while not self._stopevent.isSet():
             try:
-                self.removeSpace(dir=self._download_path,char="_")
-                dirList=sorted(os.listdir(self._download_path))
+                self.removeSpace(dir = self._download_path, char = "_")
+                dirList = sorted(os.listdir(self._download_path))
                 for fname in dirList:
-                    filepath = os.path.join(self._download_path,fname)
+                    filepath = os.path.join(self._download_path, fname)
                     if os.path.isfile(filepath):
-                        ext=fname[-3:]
-                        fname = fname.replace(" - "," ")
+                        ext = fname[-3:]
+                        fname = fname.replace(" - ", " ")
                         if ext in ('avi', 'mp4', 'mkv'):
                             try:
-                                result=re.search("[Ss][0-9][0-9]",fname)
-                                seasonNumber=result.group(0).lstrip("sS")
-                                result=re.search("[Ee][0-9][0-9]",fname)
-                                epsNumber=result.group(0).lstrip("Ee")
-                                result= re.split('\.[Ss][0-9][0-9][Ee][0-9][0-9]',fname)
-                                showname=result[0].replace('.','_')
-                                showname=showname.replace(' ','_')
-                                orgShowName=showname
-                                if re.match('[0-9][0-9][0-9][0-9]',showname[-4:]):
-                                    showname=showname[:-5]
+                                result = re.search("[Ss][0-9][0-9]", fname)
+                                seasonNumber = result.group(0).lstrip("sS")
+                                result = re.search("[Ee][0-9][0-9]", fname)
+                                epsNumber = result.group(0).lstrip("Ee")
+                                result = re.split('\.[Ss][0-9][0-9][Ee][0-9][0-9]', fname)
+                                showname = result[0].replace('.', '_')
+                                showname = showname.replace(' ', '_')
+                                orgShowName = showname
+                                if re.match('[0-9][0-9][0-9][0-9]', showname[-4:]):
+                                    showname = showname[:-5]
                             except:
                                 try:
-                                    result = re.search("[0-9][0-9]x[0-9][0-9]",fname)
-                                    seasonNumber =result.group(0)[:2]
+                                    result = re.search("[0-9][0-9]x[0-9][0-9]", fname)
+                                    seasonNumber = result.group(0)[:2]
                                     epsNumber = result.group(0)[-2:]
-                                    result = re.split("[0-9][0-9]x[0-9][0-9]",fname)
-                                    showname=result[0].replace('.','_')
-                                    showname=showname.replace(' ','_')[:-1]
+                                    result = re.split("[0-9][0-9]x[0-9][0-9]", fname)
+                                    showname = result[0].replace('.', '_')
+                                    showname = showname.replace(' ', '_')[:-1]
 
                                 except:
                                     try:
-                                        result = re.search("[0-9]x[0-9][0-9]",fname)
-                                        seasonNumber ="0%s"%(result.group(0)[:1])
+                                        result = re.search("[0-9]x[0-9][0-9]", fname)
+                                        seasonNumber = "0%s" % (result.group(0)[:1])
                                         epsNumber = result.group(0)[-2:]
-                                        result = re.split("[0-9]x[0-9][0-9]",fname)
-                                        showname=result[0].replace('.','_')
-                                        showname=showname.replace(' ','_')[:-1]
+                                        result = re.split("[0-9]x[0-9][0-9]", fname)
+                                        showname = result[0].replace('.', '_')
+                                        showname = showname.replace(' ', '_')[:-1]
                                     except:
-                                        result = re.search("[0-9][0-9][0-9]",fname)
+                                        result = re.search("[0-9][0-9][0-9]", fname)
                                         if result <> None:
-                                            seasonNumber =result.group(0)[:1]
+                                            seasonNumber = result.group(0)[:1]
                                             epsNumber = result.group(0)[-2:]
-                                            result = re.split("[0-9][0-9][0-9]",fname)
-                                            showname=result[0].replace('.','_')
-                                            showname=showname.replace(' ','_')[:-1]
+                                            result = re.split("[0-9][0-9][0-9]", fname)
+                                            showname = result[0].replace('.', '_')
+                                            showname = showname.replace(' ', '_')[:-1]
                                         else:
                                             try:
-                                                result = re.search("[0-9][0-9]",fname)
-                                                seasonNumber =result.group(0)[:1]
+                                                result = re.search("[0-9][0-9]", fname)
+                                                seasonNumber = result.group(0)[:1]
                                                 epsNumber = result.group(0)[-2:]
-                                                result = re.split("[0-9][0-9]",fname)
-                                                showname=result[0].replace('.','_')
-                                                showname=showname.replace(' ','_')[:-1]
+                                                result = re.split("[0-9][0-9]", fname)
+                                                showname = result[0].replace('.', '_')
+                                                showname = showname.replace(' ', '_')[:-1]
                                             except:
-                                                logging.error("Invalid Showname: %s",fname)
+                                                logging.error("Invalid Showname: %s", fname)
                             finally:
                                 orgShowName = showname
                             if self.anime(fname):
-                                (destName,destPath)=self.anime_exceptions(showname,fname)
-                                self.move(destPath,filepath,destName)
+                                (destName, destPath) = self.anime_exceptions(showname, fname)
+                                self.move(destPath, filepath, destName)
                                 continue
-                            url = "http://www.nosideholdings.com/json/isvalidshow/?show_name=%s" %(urllib.quote(showname.replace("_"," ")))
+                            url = "http://www.nosideholdings.com/json/isvalidshow/?show_name=%s" % (urllib.quote(showname.replace("_", " ")))
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
                             if not jsonSource['data']['valid']:
                                 logging.warning(url)
-                                logging.warning("No Show called :%s: or :%s:" % (orgShowName,showname))
+                                logging.warning("No Show called :%s: or :%s:" % (orgShowName, showname))
                                 orgShowName = ""
                                 continue
-                            url = "http://www.nosideholdings.com/json/getepisodename/?show_name=%s&season=%s&episode=%s" %(urllib.quote(showname.replace("_"," ")),urllib.quote(seasonNumber),urllib.quote(epsNumber))
+                            url = "http://www.nosideholdings.com/json/getepisodename/?show_name=%s&season=%s&episode=%s" % (urllib.quote(showname.replace("_", " ")), urllib.quote(seasonNumber), urllib.quote(epsNumber))
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
                             if jsonSource:
                                 if jsonSource['data']['name']:
-                                    epsName = jsonSource['data']['name'].title().replace(' ','_')
+                                    epsName = jsonSource['data']['name'].title().replace(' ', '_')
                                 else:
                                     epsName = ""
-
-                                fileName =  "%s.S%sE%s.%s.%s" % (showname,seasonNumber,epsNumber,epsName,ext)
+                                source_file_path = "%s.S%sE%s.%s.%s" % (showname, seasonNumber, epsNumber, epsName, ext)
                                 if jsonSource['data']['type'] == 'animated':
-                                    destPath = os.path.join(self._base_path_a,showname,"Season%s"%(seasonNumber))
+                                    destination_folder_path = os.path.join(self._base_path_a, showname, "Season%s" % (seasonNumber))
                                 else:
-                                    destPath = os.path.join(self._base_path_l,showname,"Season%s"%(seasonNumber))
-                                destName = os.path.join(destPath,fileName.replace('/',','))
-                                self.move (destPath,filepath,destName)
+                                    destination_folder_path = os.path.join(self._base_path_l, showname, "Season%s" % (seasonNumber))
+                                desitination_file_name = os.path.join(destPath, source_file_path.replace('/', ','))
+                                self.move (destination_folder_path, source_file_path, desitination_file_name)
             except(KeyboardInterrupt):
-                logging.waring("KeyboardInterrupt from main Thread, exiting")
+                logging.warning("KeyboardInterrupt from main Thread, exiting")
             #except:
             #    e = sys.exc_info()[1]
             #   logging.error("%s" % (e))
             self._stopevent.wait(self._sleepPeriod)
-    def join(self, timeout=None):
-        logging.warning("Exiting Thread :%s" %(self.getName()))
+    def join(self, timeout = None):
+        logging.warning("Exiting Thread :%s" % (self.getName()))
         self._stopevent.set()
         threading.Thread.join(self, timeout)
 
@@ -250,7 +257,7 @@ class msRssDownload(threading.Thread):
         threading.Thread.__init__(self)
         self._stopevent = threading.Event()
         self._sleepPeriod = .25
-        self._downloadLocation= "/torrents/"
+        self._downloadLocation = "/torrents/"
     def run(self):
         while not self._stopevent.isSet():
             socket.setdefaulttimeout(5)
@@ -260,31 +267,28 @@ class msRssDownload(threading.Thread):
             except:
                 #TODO print error
                 continue
-            rs = []
             jsonRaw = json.loads(htmlSource)
             jsonSourceList = jsonRaw['data']
             for jsonSource in jsonSourceList:
                 if self._stopevent.isSet():
                     break
                 downloaded_something = False
-                id = jsonSource['id']
                 show_name = jsonSource['name']
                 url = jsonSource['url']
-                last_downloaded_dt=datetime.datetime(*time.strptime(jsonSource['last_update'][:-6],"%Y-%m-%d %H:%M:%S")[:6])
-                show_type=jsonSource['show_type']
-                logging.info("Checking on show %s" %(show_name))
+                last_downloaded_dt = datetime.datetime(*time.strptime(jsonSource['last_update'][:-6], "%Y-%m-%d %H:%M:%S")[:6])
+                logging.info("Checking on show %s" % (show_name))
                 try:
-                    logging.debug("from url %s" %(url))
+                    logging.debug("from url %s" % (url))
                     feed = feedparser.parse(url)
                     for e in feed['entries']:
                         rss_update_dt = datetime.datetime.fromtimestamp(time.mktime(e['updated_parsed']))
                         torrent_link = e['link']
                         if last_downloaded_dt < rss_update_dt:
-                            file_name = "%s_%s.torrent"%(show_name.replace(' ','_'),rss_update_dt.strftime("%Y%m%d%H%M%S"))
-                            logging.info( "getting torrent for %s from %s" %(show_name,file_name))
+                            file_name = "%s_%s.torrent" % (show_name.replace(' ', '_'), rss_update_dt.strftime("%Y%m%d%H%M%S"))
+                            logging.info("getting torrent for %s from %s" % (show_name, file_name))
                             r = requests.get(torrent_link)
                             if r.status_code == requests.codes.ok:
-                                f = open('/torrents/'+file_name, 'w')
+                                f = open('/torrents/' + file_name, 'w')
                                 f.write(r.content)
                                 f.close()
                                 downloaded_something = True
@@ -292,16 +296,16 @@ class msRssDownload(threading.Thread):
                     #TODO Print error message here
                     pass
                 if downloaded_something:
-                    while not self._stopevent.isSet():            
+                    while not self._stopevent.isSet():
                         try:
-                            url = "http://www.nosideholdings.com/json/updatelastupdate/?id=%s&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                            url = "http://www.nosideholdings.com/json/updatelastupdate/?id=%s&update_date=%s" % (id, urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
                             requests.get(url)
                             break
                         except:
                             pass
-                while not self._stopevent.isSet():            
+                while not self._stopevent.isSet():
                     try:
-                        url = "http://www.nosideholdings.com/json/updatelastcheck/?id=%i&update_date=%s"%(id,urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                        url = "http://www.nosideholdings.com/json/updatelastcheck/?id=%i&update_date=%s" % (id, urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
                         requests.get(url)
                         break
                     except:
@@ -310,20 +314,20 @@ class msRssDownload(threading.Thread):
             if self._sleepPeriod == .25:
                 self._sleepPeriod = 5.0
                 logging.info("Changing sleep period from 1/4 sec to 5 sec")
-    def join(self, timeout=None):
-        logging.warning("Exiting Thread :%s" %(self.getName()))
+    def join(self, timeout = None):
+        logging.warning("Exiting Thread :%s" % (self.getName()))
         self._stopevent.set()
         threading.Thread.join(self, timeout)
 
 if __name__ == "__main__":
-    LOG_FILENAME='/tmp/msserver.log'
-    logging.basicConfig(level=logging.INFO,
-    format='%(asctime)s\t\t%(levelname)s\t\t%(threadName)s\t %(message)s',
-        datefmt='%m-%d %H:%M:%S',
-        filename=LOG_FILENAME,
-        filemode='a')
+    LOG_FILENAME = '/tmp/msserver.log'
+    logging.basicConfig(level = logging.INFO,
+    format = '%(asctime)s\t\t%(levelname)s\t\t%(threadName)s\t %(message)s',
+        datefmt = '%m-%d %H:%M:%S',
+        filename = LOG_FILENAME,
+        filemode = 'a')
     console = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(threadName)s\t %(message)s',datefmt='%m-%d %H:%M:%S')
+    formatter = logging.Formatter('%(asctime)s\t%(levelname)s\t%(threadName)s\t %(message)s', datefmt = '%m-%d %H:%M:%S')
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
     logging.getLogger('requests').setLevel(logging.WARNING)
@@ -332,7 +336,7 @@ if __name__ == "__main__":
         mover = msFileMover()
         mover.setName("File Mover")
         mover.start()
-        download =msRssDownload()
+        download = msRssDownload()
         download.setName("Downloader")
         download.start()
     except (KeyboardInterrupt):
