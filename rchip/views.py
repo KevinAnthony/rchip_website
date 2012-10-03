@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseNotModified,HttpResponseForbid
 from django.views.decorators.csrf import csrf_exempt
 import os,time
 from datetime import datetime,timedelta
+import logging
 
 @csrf_exempt
 def json_get_daemons(request):
@@ -273,6 +274,21 @@ def json_get_upcoming_shows(request):
     else:
         return HttpResponseForbidden()
 
+@csrf_exempt
+def json_delete_show(request):
+    id = (get_id(request))
+    if id != None:
+        cmd_string = "%s|%s|%s" % (request.GET['show_name'],request.GET['episode_name'],request.GET['episode_number'])
+        from_device = request.GET['device_name']
+        devices = remote_devices.objects.all().filter(active=True,user__id=id)
+        new_user = User.objects.get(id=id)
+        for device in devices:
+            if from_device != device.devices_name:
+                com_que = command_queue(command="DELS",command_text=cmd_string,source_hostname=from_device,destination_hostname=device.devices_name,user=new_user)
+                com_que.save()
+        return JSONResponse(None,Extra={"success":True})
+    else:
+        return HttpResponseForbidden()
 
 def get_id(request):
     try:

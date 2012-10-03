@@ -38,6 +38,7 @@ urlpatterns = patterns('',
     url(r'^json/deauthenticate/','rchip.views.json_deauthenticate'),
     url(r'^json/checkauthentication/','rchip.views.json_check_authentication'),
     url(r'^json/getupcomingshows/','rchip.views.json_get_upcoming_shows'),
+    url(r'^json/deleteshow/','rchip.views.json_delete_show'),
 
     url(r'^accounts/login/$','django.contrib.auth.views.login', {'template_name': 'templates/login.html', }),
     url(r'^accounts/logout/$', 'schedule.views.logout_view'),
