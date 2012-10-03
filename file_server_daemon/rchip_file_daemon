@@ -124,10 +124,10 @@ class msFileMover(threading.Thread):
                 os.makedirs(destination_folder_path)
                 os.chmod(destination_folder_path, 0777)
                 os.chown(destination_folder_path, 65534, 65534)
-                shutil.move(source_file_path, desitination_file_name_with_path)
-                os.chmod(desitination_file_name_with_path, 0777)
-                os.chown(desitination_file_name_with_path, 65534, 65534)
-                self.updatedb(desitination_file_name_with_path, destination_folder_path)
+            os.rename(os.path.abspath(source_file_path),os.path.abspath(desitination_file_name_with_path))
+            os.chmod(desitination_file_name_with_path, 0777)
+            os.chown(desitination_file_name_with_path, 65534, 65534)
+            self.updatedb(desitination_file_name_with_path, destination_folder_path)
 
     def removeSpace(self, file_name = None, dir_name = None, char = '_'):
         if file_name <> None:
@@ -158,7 +158,7 @@ class msFileMover(threading.Thread):
     def run(self):
         while not self._stopevent.isSet():
             try:
-                self.removeSpace(dir = self._download_path, char = "_")
+                self.removeSpace(dir_name = self._download_path, char = "_")
                 dirList = sorted(os.listdir(self._download_path))
                 for fname in dirList:
                     filepath = os.path.join(self._download_path, fname)
@@ -234,13 +234,13 @@ class msFileMover(threading.Thread):
                                     epsName = jsonSource['data']['name'].title().replace(' ', '_')
                                 else:
                                     epsName = ""
-                                source_file_path = "%s.S%sE%s.%s.%s" % (showname, seasonNumber, epsNumber, epsName, ext)
+                                desitination_file_name = "%s.S%sE%s.%s.%s" % (showname, seasonNumber, epsNumber, epsName, ext)
                                 if jsonSource['data']['type'] == 'animated':
                                     destination_folder_path = os.path.join(self._base_path_a, showname, "Season%s" % (seasonNumber))
                                 else:
                                     destination_folder_path = os.path.join(self._base_path_l, showname, "Season%s" % (seasonNumber))
-                                desitination_file_name = os.path.join(destPath, source_file_path.replace('/', ','))
-                                self.move (destination_folder_path, source_file_path, desitination_file_name)
+                                desitination_file_name_with_path = os.path.join(destination_folder_path, desitination_file_name.replace('/', ','))
+                                self.move (destination_folder_path, filepath, desitination_file_name_with_path)
             except(KeyboardInterrupt):
                 logging.warning("KeyboardInterrupt from main Thread, exiting")
             #except:
