@@ -279,6 +279,7 @@ class msRssDownload(threading.Thread):
                 downloaded_something = False
                 show_name = jsonSource['name']
                 url = jsonSource['url']
+                show_id = jsonSource['id']
                 last_downloaded_dt = datetime.datetime(*time.strptime(jsonSource['last_update'][:-6], "%Y-%m-%d %H:%M:%S")[:6])
                 logging.info("Checking on show %s" % (show_name))
                 try:
@@ -302,14 +303,14 @@ class msRssDownload(threading.Thread):
                 if downloaded_something:
                     while not self._stopevent.isSet():
                         try:
-                            url = "http://www.nosideholdings.com/json/updatelastupdate/?id=%s&update_date=%s" % (id, urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                            url = "http://www.nosideholdings.com/json/updatelastupdate/?id=%s&update_date=%s" % (show_id, urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
                             requests.get(url)
                             break
                         except:
                             pass
                 while not self._stopevent.isSet():
                     try:
-                        url = "http://www.nosideholdings.com/json/updatelastcheck/?id=%i&update_date=%s" % (id, urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                        url = "http://www.nosideholdings.com/json/updatelastcheck/?id=%d&update_date=%s" % (show_id, urllib.quote(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
                         requests.get(url)
                         break
                     except:
