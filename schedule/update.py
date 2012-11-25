@@ -8,10 +8,10 @@ from django.conf import settings
 
 class updateEpsList():
     def __init__(self):
-        self.showList = tv_shows.objects.filter(show_type='tvshow')
+        self.showList = tv_shows.objects.filter(active=True)
         self.apikey = '28CDD1E77B852D89'
         self.baseurl = 'http://www.thetvdb.com/api/%s/series'%(self.apikey)
-	self.logger = logging.getLogger(__name__)
+    	self.logger = logging.getLogger(__name__)
 
     def update(self):
         tz = timezone('UTC')
@@ -21,9 +21,13 @@ class updateEpsList():
             air_time = list.air_time
             if air_time == None:
                 air_time = 0
+            if not seriesID > 0:
+                continue
             url = "%s/%s/all/en.zip" % (self.baseurl,seriesID)
             logging.debug("Processing files for show: %s" %(showName))
+            logging.debug("With Url:%s" %(url))
             xmldom = self.processFile(url)
+            print xmldom
             if xmldom == None:
                 continue
             episode_data.objects.filter(show_id=tv_shows.objects.filter(name=showName),uri="").delete()
@@ -71,13 +75,14 @@ class updateEpsList():
 
     def processFile(self,url):
         #try:
-            file_uri = '/home/gigaroc/webapps/django/rchip_website/en.zip'
+            file_uri = '/home/gigaroc/webapps/django/rchip_website/schedule/en.zip'
             urllib.urlretrieve(url,file_uri)
             file = zipfile.ZipFile(file_uri, "r")
             for name in file.namelist():
                 if name == 'en.xml':
                     data = file.read(name)
                     xml = parseString(data)
+                    break
                 else:
                     logging.debug("No en.xml file")
             os.unlink(file_uri)

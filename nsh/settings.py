@@ -167,6 +167,10 @@ LOGGING = {
                 'backupCount': 5,
             'formatter':'standard',
         },
+        'null': {
+            'level': 'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
     },
     'loggers': {
 
@@ -176,6 +180,11 @@ LOGGING = {
             'propagate': True
         },
         'django.request': { # Stop SQL debug from logging to main logger
+            'handlers': ['request_handler'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'django.db.backends': { # Stop SQL debug from logging to main logger
             'handlers': ['request_handler'],
             'level': 'DEBUG',
             'propagate': False

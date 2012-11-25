@@ -2,6 +2,6 @@
 apps=(weight mile rchip schedule)
 for app in ${apps[@]}
   do
-    ./manage.py schemamigration $app --auto
-    ./manage.py migrate $app
+    python2.7 manage.py schemamigration $app --auto
+    python2.7 manage.py migrate $app
   done
