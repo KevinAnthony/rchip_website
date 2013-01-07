@@ -1,7 +1,6 @@
-/* made by Kevin Anthony, Revised by Lee Coward LeeCoPhotol.com */
 body,
 html {
-	background: whitesmoke;
+	background: #000;
         color: #9F9F9F;
 	font: normal 11px helvetica, verdana, arial, sans-serif;        
 	margin: 10px;
@@ -14,7 +13,7 @@ table {
   border-collapse: collapse;
   border:none;
   font: normal 11px helvetica, verdana, arial, sans-serif;
-  background-color: #04356C; 
+  background-color: #111111; 
   border-spacing: 1px;
   }
 td, th {
@@ -35,7 +34,7 @@ tbody tr:hover {
 tbody tr:hover th,
 
 .tableTop, .tableTop TD, .tableTop TH{
-  color: #FFE400;
+  color: #00ff00;
 }
 
 .oldrow,  .oldrow TD, .oldrow TH{
@@ -43,11 +42,11 @@ tbody tr:hover th,
 }
 
 .playing, .playing TD, .playing TH{
-  color: #FB000D;
+  color: #990066;
 }
 
 .today, .today TD, .today TH{
-  color: #FFF073;
+  color: #CC9900;
 }
 
 .currentrow, .currentrow TD, .currentrow TH {
@@ -55,23 +54,22 @@ tbody tr:hover th,
 }
 
 .futurerow, .futurerow TD, .futurerow TD {
-  color: Whitesmoke;
+  color: #009900;
 }
 
 #wrap {
 	width:800px;
 	margin:0 auto;
-	background: rgb(84, 109, 126);
-	padding-left: 15px;
+	background:#000;
 }
 
 #mainright {
-	float: left;
-	width: 600px;
+	float: right;
+	width: 550px;
 }
 #sideright {
-	float: right;
-	width: 175px;
+	float:left;
+	width: 250px;
 	color: #9F9F9F;
 }
 #mainleft {
@@ -87,10 +85,7 @@ tbody tr:hover th,
 	display: inline;
 	margin:0;
 	padding:10px;
-        
-	padding-left: 0px;
-	padding-right: 16px;
-	font: normal 15px helvetica, verdana, arial, sans-serif;
+        font: normal 15px helvetica, verdana, arial, sans-serif;
 	color: #9F9F9F;
 }
 #nav ul {
@@ -98,10 +93,9 @@ tbody tr:hover th,
 	padding:0;
 	list-style:none;
 	text-align:center;
-	width: 600px;
 }
 #nav {
-	border-bottom: 5px solid whitesmoke;
+	border-bottom:1px solid #0F0;
 	padding-bottom:5px;
 }
 #navsub li {
@@ -125,38 +119,38 @@ tbody tr:hover th,
 	clear:both;
 	background:#000;
 }
-
-.pbutton:link, .pbutton:visited {
-		background: #619AD3 ;
-        display: inline-block;
-        padding: 5px 10px 6px;
-        color: whitesmoke;
-        text-decoration: none;
-        font-weight: bold;
-        line-height: 1;
-/*         -moz-border-radius: 5px;
-        -webkit-border-radius: 5px; */
-        -moz-box-shadow: 0 1px 3px #999;
-        -webkit-box-shadow: 0 1px 3px #999;
-        text-shadow: 0 -1px 1px #222;
-        /* border-bottom: 1px solid #222; */
-        position: relative;
-        cursor: pointer;
+.pbutton{
+	background: #333 ;
+	display: inline-block;
+	padding: 5px 10px 6px;
+	color: #090;
+	text-decoration: none;
+	font-weight: bold;
+	line-height: 1;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-box-shadow: 0 1px 3px #999;
+	-webkit-box-shadow: 0 1px 3px #999;
+	text-shadow: 0 -1px 1px #222;
+	border-bottom: 1px solid #222;
+	position: relative;
+	cursor: pointer;
 }
-.pbutton:hover, .pbutton:active {
-		background: whitesmoke ;
+.pbuttonsmall{
+        font-size:9px;
+	background: #333 ;
         display: inline-block;
         padding: 5px 10px 6px;
-        color: #619AD3;
+        color: #090;
         text-decoration: none;
         font-weight: bold;
         line-height: 1;
-      /*   -moz-border-radius: 5px;
-        -webkit-border-radius: 5px; */
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
         -moz-box-shadow: 0 1px 3px #999;
         -webkit-box-shadow: 0 1px 3px #999;
         text-shadow: 0 -1px 1px #222;
-        /* border-bottom: 1px solid #222; */
+        border-bottom: 1px solid #222;
         position: relative;
         cursor: pointer;
 }
