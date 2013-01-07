@@ -229,23 +229,27 @@ class msFileMover(threading.Thread):
                             url = "http://www.nosideholdings.com/json/getepisodename/?show_name=%s&season=%s&episode=%s" % (urllib.quote(showname.replace("_", " ")), urllib.quote(seasonNumber), urllib.quote(epsNumber))
                             htmlSource = self.session.get(url).content
                             jsonSource = json.loads(htmlSource)
-                            if jsonSource:
-                                if jsonSource['data']['name']:
-                                    epsName = jsonSource['data']['name'].title().replace(' ', '_')
-                                else:
-                                    epsName = ""
-                                desitination_file_name = "%s.S%sE%s.%s.%s" % (showname, seasonNumber, epsNumber, epsName, ext)
-                                if jsonSource['data']['type'] == 'animated':
-                                    destination_folder_path = os.path.join(self._base_path_a, showname, "Season%s" % (seasonNumber))
-                                else:
-                                    destination_folder_path = os.path.join(self._base_path_l, showname, "Season%s" % (seasonNumber))
-                                desitination_file_name_with_path = os.path.join(destination_folder_path, desitination_file_name.replace('/', ','))
-                                self.move (destination_folder_path, filepath, desitination_file_name_with_path)
+                            try:
+                                if jsonSource:
+                                    if 'name' in jsonSource['data'] and jsonSource['data']['name']:
+                                        epsName = jsonSource['data']['name'].title().replace(' ', '_')
+                                    else:
+                                        epsName = ""
+                                    desitination_file_name = "%s.S%sE%s.%s.%s" % (showname, seasonNumber, epsNumber, epsName, ext)
+                                    if 'type' in jsonSource['data'] and jsonSource['data']['type'] == 'animated':
+                                        destination_folder_path = os.path.join(self._base_path_a, showname, "Season%s" % (seasonNumber))
+                                    else:
+                                        destination_folder_path = os.path.join(self._base_path_l, showname, "Season%s" % (seasonNumber))
+                                    desitination_file_name_with_path = os.path.join(destination_folder_path, desitination_file_name.replace('/', ','))
+                                    self.move (destination_folder_path, filepath, desitination_file_name_with_path)
+                            except:
+                                e = sys.exc_info()[1]
+                                logging.error("%s" % (e))
             except(KeyboardInterrupt):
                 logging.warning("KeyboardInterrupt from main Thread, exiting")
-            #except:
-            #    e = sys.exc_info()[1]
-            #   logging.error("%s" % (e))
+            except:
+                e = sys.exc_info()[1]
+                logging.error("%s" % (e))
             self._stopevent.wait(self._sleepPeriod)
     def join(self, timeout = None):
         logging.warning("Exiting Thread :%s" % (self.getName()))
