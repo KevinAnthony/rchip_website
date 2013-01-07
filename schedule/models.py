@@ -14,8 +14,7 @@ class tv_shows(models.Model):
     download = models.BooleanField(default=False)
     thetvdb_id = models.IntegerField()
     air_time = models.IntegerField(default = 0)
-    source_regex = models.CharField(max_length=32,default=None)
-    destination_regex = models.CharField(max_length=32,default=None)
+    nonstandard_name_regex = models.CharField(max_length=512,default=None,null=True)
     def __unicode__(self):
             return self.name
 

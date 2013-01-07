@@ -194,6 +194,14 @@ def json_is_valid_show(request):
     return JSONResponse(response,Extra={"success":True})
 
 @csrf_exempt
+def json_get_nonstd_regex(request):
+    show_name = request.GET['show_name']
+    response = {}
+    s = tv_shows.objects.get(name=show_name)
+    response['regex']=s.nonstandard_name_regex
+    return JSONResponse(response,Extra={"success":True})
+
+@csrf_exempt
 def json_get_episode_name(request):
     show_name = request.GET['show_name']
     episode = int(request.GET['episode'])
